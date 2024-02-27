@@ -1,0 +1,72 @@
+.title-login{
+    color: rgb(41, 55, 73);
+    font-family: Boing, Noto, "Noto Sans JP", "Open Sans", sans-serif;
+    font-size: 3rem;
+    font-weight: 900;
+    margin: 0px 0.5rem;
+    padding-bottom: 2rem;
+    text-align: center;
+    max-width: 28rem;
+    box-sizing: border-box;
+}
+
+.title-form{
+    color: rgb(77, 80, 87);
+    display: inline-block;
+    font-weight: 700;
+    width: 100%;
+    font-size: 0.75rem;
+}
+
+.input{
+    background-color: rgb(255, 255, 255);
+    border-radius: 1rem;
+    border: 2px solid rgb(41, 42, 46);
+    font-size: inherit;
+    margin-top: 0.5rem;
+    position: relative;
+    padding: 1rem;
+    width: 100%;
+    z-index: 500;
+    font-family: "Open Sans", sans-serif, sans-serif;
+}
+
+.login-button-1{
+    -webkit-box-align: center;
+    align-items: center;
+    background: rgb(188, 194, 207);
+    border-radius: 0.5rem;
+    color: rgb(76, 88, 100);
+    cursor: pointer;
+    display: flex;
+    flex-basis: 100%;
+    flex-direction: row;
+    font-family: "Open Sans", sans-serif;
+    font-size: 1rem;
+    hyphens: auto;
+    -webkit-box-pack: center;
+    justify-content: center;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+    padding: 1rem;
+    position: relative;
+    text-align: center;
+    text-decoration: none;
+    transition: opacity 200ms cubic-bezier(0, 1, 0.75, 1) 0s, color 0.2s ease-in-out 0.1s;
+    width: 100%;
+    height: auto;
+    z-index: 300;
+    border: none;
+    font-weight: 700;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px -4px 0px inset;
+
+}
+
+.register-require{
+    align-self: center;
+    color: initial;
+    cursor: pointer;
+    padding-top: 1.25rem;
+    text-align: center;
+    text-decoration: underline;
+}

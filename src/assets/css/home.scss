@@ -1,0 +1,52 @@
+.promo-banner-fixed{
+    background-color: rgba(255, 192, 0, 100%);
+
+    .container{
+        max-width: 1465px;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        float: none;
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .login-button {
+        border: 1px solid #2b3648;
+        border-radius: 4px;
+        padding: 6px 16px;
+        color: #000;
+        display: inline-block;
+        margin: 10px;
+    }
+}
+
+.text{
+    color: #2b3648;
+    font-family: Boing;
+    font-size: 56px;
+    font-style: normal;
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 10px;
+    position: relative;
+    text-align: center;
+    transform: rotate(-2deg);
+}
+
+.background {
+    align-items: center;
+    display: flex;
+    margin: auto;
+    max-width: 1104px;
+}
+
+.text-in{
+    font-family: Boing;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 700;
+}
+
+.lazy {
+    margin-left: 100px;
+}
