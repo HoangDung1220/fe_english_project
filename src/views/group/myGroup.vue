@@ -47,9 +47,8 @@
                                                     </el-col>
                                                     <el-col :span="18" style="font-size: 16px;font-weight: bold;color: #333;">
                                                         {{ item1.course.title }}
-                                                        <el-progress :percentage="item1.percentage" />
                                                     </el-col>
-                                                    <el-col :span="3"><el-button type="success">Learn</el-button></el-col>
+                                                    <el-col :span="3"><el-button type="success" @click="GoToLearn(item1.course.id)">Learn</el-button></el-col>
 
                                                 </el-row>
                                                
@@ -73,20 +72,40 @@
                                         </el-dropdown>
 
                                         <div style="font-size: 13px;">You can only add courses that you are learning to your group.</div>
-                                        <div style="font-size: 13px;">You can also <a>search for a course</a> and start learning it or <a>create your own</a>.
+                                        <div style="font-size: 13px;">You can also <a>search for a course</a> and start learning it or <a @click="createCourse()">create your own</a>.
 </div>   
                                     </el-tab-pane>
                                         <el-tab-pane label="Members">
                                             <el-scrollbar>
                                                 <div class="scrollbar-flex-content">
-                                                    
-                                                <div v-for="(item2,index2) in item.courses" :key="index2" class="scrollbar-demo-item">
-                                                   
-                                                    <!-- <el-table :data="members[index+index2].members" style="width: 100%" :border="true">
-                                                        <el-table-column prop="id" label="AVata" width="100" />
-                                                        <el-table-column prop="username" label="Username" width="200" />
-                                                        <el-table-column prop="score" label="Score" />
-                                                    </el-table> -->
+                                                <div v-for="item3,index3 in members" :key="index3" >
+                                                        <div v-if="item3.group==item.group.id" class="scrollbar-demo-item" style="height: 300px;display: block;">
+                                                            <el-row style="font-size:20px; margin:5px">{{ item3.course_name }}</el-row>
+                                                            <div v-if="item3.members.length>0">
+                                                                <el-row v-for="it4,id4 in item3.members" :key="id4" >
+                                                                    <div class="leader-board-row" >
+                                                                        <el-row>
+                                                                            <el-col :span="5">
+                                                                                <span class="row-username">{{ id4 +1 }}. </span>
+                                                                            </el-col>
+                                                                            <el-col :span="10">
+                                                                                <span class="row-username"> {{ it4.username }}</span>
+                                                                            </el-col>
+                                                                            <el-col :span="9">
+                                                                                <span class="row-username"> {{ it4.score }}</span>
+                                                                            </el-col>
+                                                                        </el-row>
+                                                                        <el-row>
+                                                                            <div style="width: 60%; margin-left:20px; margin-top:-20px">
+                                                                            <el-progress :text-inside="true" :stroke-width="15" :percentage="it4.percentage"       status="warning"/>
+                                                                            </div>
+                                                                        </el-row>
+                                                                    </div>
+                                                                
+                                                                </el-row>
+                                                                </div>
+                                                                <div v-else>No data</div>
+                                                        </div>
                                                 </div>
                                                 </div>
                                             </el-scrollbar>
@@ -99,20 +118,115 @@
                     </el-card>
                 </el-row>
 
-                <el-row class="title" style="margin-top:30px"><h1>Groups I'm enrolled in</h1></el-row>
-              
+                <el-row class="title" style="margin-top:30px; "><h1>Groups I'm enrolled in</h1></el-row>
+                <el-row  v-for="(item,index) in other_group" :key="index">
+                    <el-card style="width: 100%; margin-top: 20px;">
+                        <el-row>
+                            <el-col :span="3"><img src="../../assets/img/group_main.png" style="height: 60px; width: 60px;"/></el-col>
+                            <el-col :span="21">
+                                <el-row>
+                                    <el-col :span="22"><div style="color:black">{{ other_group[index].group.name }}</div></el-col>
+                                    <el-col :span="2"><el-button type="info" plain @click="invitePeople(item.group.id)" >Invite</el-button></el-col>
+                                    
+                                </el-row>
+                                <el-row style="margin-top: 15px;">
+                                    <el-tabs type="border-card" class="demo-tabs" style="width: 100%;">
+                                        <el-tab-pane>
+                                        <template #label>
+                                            <span class="custom-tabs-label">
+                                            <el-icon><calendar /></el-icon>
+                                            <span>Course</span>
+                                            </span>
+                                        </template>
+                                        <el-row v-for="(item1,index1) in item.courses" :key="index1">
+                                            <el-col :span="2">
+                                                <div class="index">{{index1+1 }}.</div>
+                                            </el-col>
+                                            <el-col :span="22">
+                                            <div class="card-1">
+                                                <el-row>
+                                                    <el-col :span="3">
+                                                        <div class="btn_holder" v-if="item1.course.user_created == user" @click="deleteCourse(item1.course.id, item.group.id)">
+                                                            <el-icon size="13"><CloseBold /></el-icon>
+                                                        </div>
+                                                        <img v-bind:alt="item1.course.title" v-bind:src="item1.course.image" style="height: 60px; width: 60px;"/>
+                                                    </el-col>
+                                                    <el-col :span="18" style="font-size: 16px;font-weight: bold;color: #333;">
+                                                        {{ item1.course.title }}
+                                                    </el-col>
+                                                    <el-col :span="3"><el-button type="success" @click="GoToLearn(item1.course.id)">Learn</el-button></el-col>
+
+                                                </el-row>
+                                               
+                                            </div>
+                                            </el-col>
+                                        </el-row>
+
+                                        <el-dropdown>
+                                        <el-button type="primary">
+                                            Choose a course to add list<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                                        </el-button>
+                                        <template #dropdown>
+                                            <el-dropdown-menu>
+                                                <el-dropdown-item disabled>Course common</el-dropdown-item>
+                                                <el-dropdown-item v-for="value,key in item.public_course" :key="key" @click="handleClick(value.id, item.group.id)">{{ value.title }}</el-dropdown-item>
+                                                <el-dropdown-item disabled divided>Course personal</el-dropdown-item>
+                                                <el-dropdown-item v-for="value1,key1 in item.private_course" :key="key1" @click="handleClickPrivate(value1.id, item.group.id)">{{ value1.title }}</el-dropdown-item>
+
+                                        </el-dropdown-menu>
+                                        </template>
+                                        </el-dropdown>
+
+                                        <div style="font-size: 13px;">You can only add courses that you are learning to your group.</div>
+                                        <div style="font-size: 13px;">You can also <a>search for a course</a> and start learning it or <a @click="createCourse()">create your own</a>.
+</div>   
+                                    </el-tab-pane>
+                                        <el-tab-pane label="Members">
+                                            <el-scrollbar>
+                                                <div class="scrollbar-flex-content">
+                                                <div v-for="item3,index3 in other_members" :key="index3" >
+                                                        <div v-if="item3.group==item.group.id" class="scrollbar-demo-item" style="height: 300px;display: block;">
+                                                            <el-row style="font-size:20px; margin:5px">{{ item3.course_name }}</el-row>
+                                                            <div v-if="item3.members.length>0">
+                                                                <el-row v-for="it4,id4 in item3.members" :key="id4" >
+                                                                    <div class="leader-board-row" >
+                                                                        <el-row>
+                                                                            <el-col :span="5">
+                                                                                <span class="row-username">{{ id4 +1 }}. </span>
+                                                                            </el-col>
+                                                                            <el-col :span="10">
+                                                                                <span class="row-username"> {{ it4.username }}</span>
+                                                                            </el-col>
+                                                                            <el-col :span="9">
+                                                                                <span class="row-username"> {{ it4.score }}</span>
+                                                                            </el-col>
+                                                                        </el-row>
+                                                                        <el-row>
+                                                                            <div style="width: 60%; margin-left:20px; margin-top:-20px">
+                                                                            <el-progress :text-inside="true" :stroke-width="15" :percentage="it4.percentage"       status="warning"/>
+                                                                            </div>
+                                                                        </el-row>
+                                                                    </div>
+                                                                
+                                                                </el-row>
+                                                                </div>
+                                                                <div v-else>No data</div>
+                                                        </div>
+                                                </div>
+                                                </div>
+                                            </el-scrollbar>
+                                        </el-tab-pane>
+                                        
+                                    </el-tabs>
+                                </el-row>
+                            </el-col>
+                        </el-row>
+                    </el-card>
+                </el-row>
+                <div style="margin-bottom: 30px;"></div>
 
             </el-col>
-            <el-col :span="4">
-                <el-card class="leader-board">
-                    <el-row class="leader-tilte">Leader board</el-row>
-                    <ul class="leader-row">
-                        <li class="leader-row current">
-                            <span class="row-pic"><img src="../../assets/img/avatar.png" class="image"/></span>
-                        </li>
-                    </ul>
-                </el-card>
-            </el-col>
+           
         </el-row>
 
 
@@ -127,21 +241,8 @@
             </div>
 
             </template>
-            Create new group
             <el-row>
-                <el-col :span="5">
-                      <el-upload
-                            class="avatar-uploader"
-                            :show-file-list="false"
-                            :action="url+filename+query"
-                            :on-error="handleUploadError"
-                            :on-success="handleUploadSuccess"
-                            :auto-upload="false"
-                        >
-                            <img v-if="imageUrl" :src="imageUrl" class="avatar" />
-                            <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
-                        </el-upload>
-                    </el-col>
+                    <el-col :span="5">Name</el-col>
                     <el-col :span="15" >
                         <el-input v-model="name_group" placeholder="Please input name group" style="justify-content: center; margin: 10px;"/>
                     </el-col>
@@ -297,7 +398,9 @@ export default{
             group_choice:"",
             suggest_member:[],
             value : "",
-            options:[]
+            options:[],
+            other_group:[],
+            other_members:[]
         }
     },
 
@@ -317,8 +420,17 @@ export default{
             .get(`http://127.0.0.1:8000/api/v1/group/${id_user}`)
             .then((response) => {
                 this.groups = response.data
-               // this.createMembers()
-              //  console.log(this.len_course)
+                this.createMembers()
+            })
+            .catch((error) => console.log(error));
+
+        await axios
+            .get(`http://127.0.0.1:8000/api/v1/group/other/${id_user}`)
+            .then((response) => {
+                this.other_group = response.data
+                console.log("hi")
+                console.log(this.other_group )
+                this.createMembers1()
             })
             .catch((error) => console.log(error));
 
@@ -334,6 +446,8 @@ export default{
         },
 
     async createGroup(){
+        this.$store.commit('setIsLoading',true)
+
         const id_user = this.$store.state.user.id
         const formData = new FormData()
         var id_group = 0 
@@ -348,6 +462,20 @@ export default{
                 id_group = response.data.id
                 console.log(response.data)
 
+            })
+            .catch((error) => console.log(error));
+        
+        const data1=
+            {
+                "user": id_user,
+                "group_id": id_group,
+                "role": 3
+            }
+        
+
+        await axios
+            .post('http://127.0.0.1:8000/api/v1/auth/user-role',data1)
+            .then((response) => {
             })
             .catch((error) => console.log(error));
 
@@ -366,11 +494,23 @@ export default{
                this.visible = false
             })
             .catch((error) => console.log(error));
+        
+        await axios
+            .get(`http://127.0.0.1:8000/api/v1/group/${id_user}`)
+            .then((response) => {
+                this.groups = response.data
+            })
+            .catch((error) => console.log(error));
+        this.$store.commit('setIsLoading',false)
 
     },
 
     choiceValue(){
         console.log(this.select_course)
+    },
+
+    createCourse(){
+        this.$router.push("/course/create")
     },
 
     async handleClick(id_course, id_group){
@@ -505,7 +645,6 @@ export default{
                 "member" : this.value,
                 "user_invite_join": parseInt(this.user)
             }
-            console.log(data)
             axios
                 .post(`http://127.0.0.1:8000/api/v1/group/member`,data)
                 .then((response) => {
@@ -513,7 +652,7 @@ export default{
                 })
                 .catch((error) => {
                     toast({
-                message: "Can't add course. Please try again",
+                message: "Can't add member. Please try again",
                 type: "is-danger",
                 dismissible: true,
                 pauseOnHover: true,
@@ -524,7 +663,7 @@ export default{
             this.isInvite=false
         } else{
             toast({
-                message: "Can't add course. Please choice user",
+                message: "Can't add member. Please choice user",
                 type: "is-danger",
                 dismissible: true,
                 pauseOnHover: true,
@@ -533,6 +672,30 @@ export default{
               })
         }
         this.value = ""
+    },
+
+    inviteSuggest(id_user){
+        const data = {
+                "group" : this.group_choice,
+                "member" : id_user,
+                "user_invite_join": parseInt(this.user)
+            }
+            axios
+                .post(`http://127.0.0.1:8000/api/v1/group/member`,data)
+                .then((response) => {
+                    this.options = response.data
+                })
+                .catch((error) => {
+                    toast({
+                message: "Can't add member. Please try again",
+                type: "is-danger",
+                dismissible: true,
+                pauseOnHover: true,
+                duration: 2000,
+                position: "top-right",
+              })
+            })
+            this.isInvite=false
     },
 
     createMembers(){
@@ -549,7 +712,8 @@ export default{
                     const d ={
                         "id":item1.members[i2].user.id,
                         "username":item1.members[i2].user.username,
-                        "score":item1.members[i2].total_score
+                        "score":item1.members[i2].total_score,
+                        "percentage":item1.members[i2].percentage,
                     }
                     members.push(d)
                 }
@@ -565,6 +729,7 @@ export default{
             } else members = []
             
                 const data = {
+                    "course_name":item1.course.title,
                     "group" : item.group.id,
                     "course" : item1.course.id,
                     "members" : members
@@ -574,6 +739,52 @@ export default{
         }
         console.log(this.groups.length)
 
+    },
+
+    createMembers1(){
+        var sum =0
+        for (let i in this.other_group){
+            const item = this.other_group[i]
+            this.len_course[i+1] = sum
+            sum = sum + item.courses.length
+            for (var i1 in item.members_course){
+                const item1 = item.members_course[i1]
+                var members = []
+                if (item1.members.length>0){
+                for (var i2 in item1.members){
+                    const d ={
+                        "id":item1.members[i2].user.id,
+                        "username":item1.members[i2].user.username,
+                        "score":item1.members[i2].total_score,
+                        "percentage":item1.members[i2].percentage,
+                    }
+                    members.push(d)
+                }
+                for (var k = 0; k<members.length-1;k++){
+                for (var j = k+1;j<members.length;j++)
+                if (members[j].score>members[k].score){
+                    var tmp = members[j];
+                    members[j] = members[k];
+                    members[k] = tmp;
+                }
+            }
+
+            } else members = []
+            
+                const data = {
+                    "course_name":item1.course.title,
+                    "group" : item.group.id,
+                    "course" : item1.course.id,
+                    "members" : members
+                }
+                this.other_members.push(data)
+            }
+        }
+
+    },
+
+    GoToLearn(id){
+        this.$router.push(`course/${id}`)
     }
 },
 }
@@ -583,7 +794,10 @@ export default{
        @import "../../assets/css/content_home.scss";
        @import "../../assets/css/group.scss";
 
-           
+       .demo-progress .el-progress--line {
+  margin-bottom: 15px;
+  width: 350px;
+}  
 .lds-dual-ring{
   display: inline-block;
   width : 80px;

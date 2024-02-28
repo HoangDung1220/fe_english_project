@@ -4,7 +4,7 @@
        <div class="content-container" style="margin-top:0px;background-color: rgb(252, 250, 242);">
         <el-row style="margin-bottom: 15px;">
             <el-col :span="3"></el-col>
-            <el-col :span="18" class="title-recommend-public">Recommended lesson plan for beginners</el-col>
+            <el-col :span="18" class="title-recommend-public">Recommended lesson </el-col>
             <el-col :span="3"></el-col>
 
         </el-row>
@@ -20,7 +20,7 @@
                      </div>
               </el-col>
               <el-col :span="5">  
-                     <el-input v-model="search" class="w-50 m-2" placeholder="Type something">
+                     <el-input v-model="search" class="w-50 m-2" placeholder="Type something" @change="searchCourse()">
                             <template #prefix>
                             <el-icon class="el-input__icon"><search /></el-icon>
                             </template>
@@ -157,9 +157,8 @@ export default {
        return{
               name : this.$store.state.user.username,
               courses : [],
-              tags:[],
               checkboxGroup1 :  ['All'],
-              cities : ['All','Toeic', 'Education', 'Practice', 'Job'],
+              cities : ['All','toeic', 'education', 'practice', 'job'],
               search:""
        }
    },
@@ -174,32 +173,33 @@ export default {
        
        this.$store.state.user.username = this.$store.state.user.username
        axios
-                .get(`http://127.0.0.1:8000/api/v1/course/dictionary/1`)
+                .get(`http://127.0.0.1:8000/api/v1/course/home/${this.$store.state.user.id}`)
                 .then((response) => {
                     this.courses = response.data
                 })
                 .catch((error) => console.log(error));
-       axios
-                .get(`http://127.0.0.1:8000/api/v1/course/tag/1`)
-                .then((response) => {
-                    this.tags = response.data
-                })
-                .catch((error) => console.log(error));
+      
    },
    methods:{
        choiceLesson(id){
               this.$router.push(`/course/${id}`)
        },
        choiceValue(value){
-              if (value != 'All')
+              this.checkboxGroup1 = [value] 
+              this.searchCourse()
+       },
+       searchCourse(){
+              var url = `http://127.0.0.1:8000/api/v1/course/home/${this.$store.state.user.id}?tag=${this.checkboxGroup1[0]}&search=${this.search}`
+              if (this.checkboxGroup1[0]=="All")
               {
-                     const index = this.checkboxGroup1.indexOf("All");
-                     if (index > -1) { // only splice array when item is found
-                     this.checkboxGroup1.splice(index, 1); // 2nd parameter means remove one item only
-                     }
-              } else{
-                     this.checkboxGroup1 = ['All'] 
+                     url = `http://127.0.0.1:8000/api/v1/course/home/${this.$store.state.user.id}?search=${this.search}`
               }
+              axios
+                .get(`${url}`)
+                .then((response) => {
+                    this.courses = response.data
+                })
+                .catch((error) => console.log(error));
        }
    }
     

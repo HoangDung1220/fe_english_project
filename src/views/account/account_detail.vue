@@ -1,9 +1,6 @@
 <template>
     <div>
-        <el-container class="layout-container-demo">
-        <SideBar />
-        <el-container style="background-color: #f9f8f8;">
-          <el-main>
+       
         <div style="background-color: #f9f8f8; ">
         <div class="header-3">
             <el-row>
@@ -42,7 +39,6 @@
                         <el-radio-button label="Follower" />
                         <el-radio-button label="Following" />
                         <el-radio-button label="Course" />
-                        <el-radio-button label="Information" />
                 </el-radio-group>
             </el-row>
            <el-row v-if="choice==1" style="margin-bottom:200px">
@@ -108,8 +104,8 @@
                     <div class="content-container" style="margin-bottom: 30px; background-color: #f9f8f8;">
                     <div class="vocabulary-container" style="background-color: #f9f8f8;">
                         <div v-for="item,index in courses" :key="index">
-                            <el-row :gutter="20"  v-if="index%3==0" style="margin-top: 20px;" >
-                                        <el-col :span="7" v-if="index<courses.length">
+                            <el-row :gutter="20"  v-if="index%3==0" style="margin-top:20px">
+                                        <el-col :span="6" v-if="index<courses.length">
                                                 <el-card class="card_public" :body-style="{ padding: '0px' }" style="height:350px" @click="choiceLesson(courses[index].id)">
                                                         <div class="image-card">
                                                         <img 
@@ -133,7 +129,7 @@
                                                 </el-card>
                                         </el-col>
 
-                                        <el-col :span="7" v-if="index+1<courses.length">
+                                        <el-col :span="6" v-if="index+1<courses.length">
                                                 <el-card class="card_public" :body-style="{ padding: '0px' }" style="height:350px" @click="choiceLesson(courses[index+1].id)">
                                                         <div class="image-card">
                                                         <img 
@@ -157,7 +153,7 @@
                                                 </el-card>
                                         </el-col>
 
-                                        <el-col :span="7" v-if="index+2<courses.length">
+                                        <el-col :span="6" v-if="index+2<courses.length">
                                                 <el-card class="card_public" :body-style="{ padding: '0px' }" style="height:350px" @click="choiceLesson(courses[index+2].id)">
                                                         <div class="image-card">
                                                         <img 
@@ -187,64 +183,8 @@
                     </div>
               </el-col>
             </el-row>
-
-            <el-row v-if="choice==4">
-                <el-col :span="3"></el-col>
-                <el-col :span="18">
-                <div class="table_learned" style="margin-top: 20px;">
-                    <div class="header_table">
-                        <div class="text_header">
-                            Information
-                        </div>
-                    </div>
-                    <el-row style="margin-top:20px">
-                        <el-col :span=2></el-col>
-                        <el-col :span="5" class="point_complete" style="font-size: 15px;">Username</el-col>
-                        <el-col :span="15"><el-input size="large" v-model="account.username"></el-input></el-col>
-                    </el-row>
-
-                    <el-row style="margin-top:20px">
-                        <el-col :span=2></el-col>
-                        <el-col :span="5" class="point_complete" style="font-size: 15px;">Gmail</el-col>
-                        <el-col :span="15"><el-input size="large" v-model="account.email"></el-input></el-col>
-                    </el-row>
-
-                    <el-row style="margin-top:20px">
-                        <el-col :span=2></el-col>
-                        <el-col :span="5" class="point_complete" style="font-size: 15px;">Number words learned</el-col>
-                        <el-col :span="15"><el-input size="large" v-model="account.total_vocabulary_learned"></el-input></el-col>
-                    </el-row>
-
-                    <el-row style="margin-top:20px">
-                        <el-col :span=2></el-col>
-                        <el-col :span="5" class="point_complete" style="font-size: 15px;">Total score</el-col>
-                        <el-col :span="15"><el-input size="large" v-model="account.total_mark_learned"></el-input></el-col>
-                    </el-row>
-
-                    <el-row style="margin-top:20px" >
-                        <el-col :span=2></el-col>
-                        <el-col :span="5" class="point_complete" style="font-size: 15px;">Role</el-col>
-                        <el-col :span="15"> <el-checkbox v-model="isAdmin" label="Admin" size="large" />
-                                <el-checkbox v-model="isUser" label="User" size="large" /></el-col>
-                    </el-row>
-
-                    <el-row style="margin:20px" >
-                        <el-col :span=2></el-col>
-                        <el-col :span="15"></el-col>
-                        <el-col :span="5"><el-button plain>Update</el-button></el-col>
-                    </el-row>
-
-
-                </div>
-                </el-col>
-                <el-col :span="3"></el-col>
-            </el-row>
-
-
        </div>
-       </el-main>
-    </el-container>
-       </el-container>
+       
     </div>
   </template>
   
@@ -264,10 +204,7 @@
         courses:[],
         follower:[],
         following:[],
-        isFollow:false,
-        roles:[],
-        isAdmin : false,
-        isUser : false
+        isFollow:false
       };
     },
     components: {
@@ -275,7 +212,6 @@
     
     },
     async mounted(){
-        this.$store.state.admin_page = true
         this.$store.commit('setIsLoading',true)
         this.getAccount()
         this.getFollower()
@@ -328,25 +264,6 @@
                
         },
 
-        getRole(){
-            var id = this.$route.params.user
-
-            axios
-                .get(`http://127.0.0.1:8000/api/v1/auth/admin/role/${id}`)
-                .then((response) => {
-                    this.roles = response.data
-                    for (var i=0;i<this.roles.length;i++){
-                        if (this.roles[i].name == 'admin'){
-                            this.isAdmin = true
-                        }
-                        if (this.roles[i].name == 'user'){
-                            this.isUser = true
-                        }
-                    }
-                })
-                .catch((error) => console.log(error));
-        },
-
         Change(){
             if (this.tableLayout=="Course"){
                 this.choice = 3
@@ -356,10 +273,6 @@
             else if (this.tableLayout=="Follower"){
                 this.choice = 1
             } 
-            else if (this.tableLayout=="Information"){
-                this.getRole()
-                this.choice=4
-            }
             else this.choice =2
         },
 

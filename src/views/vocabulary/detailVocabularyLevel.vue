@@ -4,13 +4,13 @@
         <el-row>
             <el-col :span="3"></el-col>
             <el-col :span="2">
-                <img class="image-course" style="height: 50px;width: 50px;" v-bind:src="course.course.image" >
+                <img class="image-course" style="height: 50px;width: 50px;" v-bind:src="course_current.image" >
             </el-col>
             <el-col :span="10">
-            <el-row class="title-course" style="color:  #fff;"><h3>{{ course.course.title }}</h3></el-row>
+            <el-row class="title-course" style="color:  #fff;"><h3>{{ course_current.title }}</h3></el-row>
             </el-col>
             <el-col :span="7">
-                <el-row><el-button class="button-1" color="#ffc000"><span>Created by <a>{{ course.course.user_name }} </a></span></el-button></el-row>
+                <el-row><el-button class="button-1" color="#ffc000"><span>Created by <a>{{ user.username }} </a></span></el-button></el-row>
             </el-col>
         </el-row>
 
@@ -42,10 +42,10 @@
                             <el-row class="demo-progress">
                                 <el-progress :text-inside="true" :stroke-width="26" style="width: 600px;" :percentage="course.percentage" color="#ffda3e" />
                             </el-row>
-                            <el-row class="group-button" @click="goToDetailWord()">
-                                <el-button type="success" v-if="course.percentage==parseFloat(0) && vocabulary.length>0">Learn these words</el-button>
-                                <el-button type="success" v-if="course.percentage!=parseFloat(100) && course.percentage!=parseFloat(0) && vocabulary.length>0">Countinue these words</el-button>
-                                <el-button type="success" v-if="vocabulary.length>0">Review words</el-button>
+                            <el-row class="group-button">
+                                <el-button type="success" @click="goToDetailWord()" v-if="course.percentage==parseFloat(0) && vocabulary.length>0">Learn these words</el-button>
+                                <el-button type="success" @click="goToDetailWord()"  v-if="course.percentage!=parseFloat(100) && course.percentage!=parseFloat(0) && vocabulary.length>0">Countinue these words</el-button>
+                                <el-button type="success" v-if="vocabulary.length>0" @click="ReviewWord(course.level.id)">Review words</el-button>
                             </el-row>
                         </el-col>
                     </el-row>
@@ -100,6 +100,11 @@ export default {
             percentage:0,
             num_level:0,
             next_level:{}
+        },
+        course_current:[],
+        user:{
+            "id":0,
+            "username":""
         }
     }
    },
@@ -163,6 +168,16 @@ export default {
             this.id_level = this.$route.params.id_level
             const id_user = this.$store.state.user.id
             await axios
+                        .get(`http://127.0.0.1:8000/api/v1/course/basic/${this.id_course}`)
+                        .then((response) => {
+                            console.log("he")
+                            this.course_current = response.data
+                            this.user.username = response.data.user_created.username
+                            console.log(response.data)
+                        })
+                        .catch((error) => console.log(error));
+
+            await axios
                         .get(`http://127.0.0.1:8000/api/v1/course/${this.id_course}/level/${this.id_level}`)
                         .then((response) => {
 
@@ -175,11 +190,24 @@ export default {
                         .get(`http://127.0.0.1:8000/api/v1/course/detail/${this.id_course}/${this.id_level}/${id_user}`)
                         .then((response) => {
                             this.course = response.data
-                            console.log(this.course.course.title)
                         })
                         .catch((error) => console.log(error));
             this.$store.commit('setIsLoading',false)
    },
+
+   ReviewWord(id_level){
+        const data={
+            "level" : id_level,
+            "user" : this.$store.state.user.id
+        }
+
+        axios
+                        .post(`http://127.0.0.1:8000/api/v1/review-word/`,data)
+                        .then((response) => {
+                            this.$router.push(`/review/${this.id_course}/${this.id_level}/${this.$store.state.user.id}`)
+                        })
+                        .catch((error) => console.log(error));
+   }
         
    }
 }

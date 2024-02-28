@@ -12,8 +12,7 @@
         </el-row>
         <el-row>
             <el-col :span="2"></el-col>
-           <el-button class="button-1" color="#ffc000" style="width:250px; height:40px;     z-index: 100;
-    position: relative;  font-size: 24px;">Start learing now</el-button>
+           
 
         </el-row>
     </div>

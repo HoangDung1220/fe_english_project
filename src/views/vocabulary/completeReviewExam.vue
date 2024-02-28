@@ -33,6 +33,8 @@
                                         <el-icon  size="25" style="cursor: pointer;" @click="rating(i)" v-else><Star /></el-icon>
 
                                     </div>
+
+                                    
                                 </el-row>
                             </el-col>
                         </el-row>
@@ -48,7 +50,7 @@
                             You just learned
                         </div>
                     </div>
-                    <div class="table_vocabulary">
+                    <!-- <div class="table_vocabulary">
                         <ul class="content_vocabulary">
                             <li class="item_vocabulary" v-for="item in vocabularies" :key="item">
                                 <div class="item">
@@ -58,7 +60,7 @@
                             </li>
                         </ul>
                         
-                    </div>
+                    </div> -->
                     </div>
             </el-col>
             <el-col :span="10">
@@ -82,34 +84,20 @@
                     </div>
                     <div class="table_vocabulary">
                         <ul class="content_vocabulary_1">
-                            <li class="item_vocabulary">
-                                <div class="item">
-                                    <img class ="image_vocabulary" src="../../assets/img/avatar.png"/>
-                                    <p class="name" style="font-size: 14px;">1.DungNNH</p>
-                                    <h3 style="font-size: 14px;">3000 point</h3>
-                                </div>
-                            </li>
-                            <li class="item_vocabulary">
-                                <div class="item">
-                                    <img class ="image_vocabulary" src="../../assets/img/avatar.png"/>
-                                    <p class="name" style="font-size: 14px;">1.DungNNH</p>
-                                    <h3 style="font-size: 14px;">3000 point</h3>
-                                </div>
-                            </li>
-                            <li class="item_vocabulary">
-                                <div class="item">
-                                    <img class ="image_vocabulary" src="../../assets/img/avatar.png"/>
-                                    <p class="name" style="font-size: 14px;">1.DungNNH</p>
-                                    <h3 style="font-size: 14px;">3000 point</h3>
-                                </div>
-                            </li>
-                            <li class="item_vocabulary">
-                                <div class="item">
-                                    <img class ="image_vocabulary" src="../../assets/img/avatar.png"/>
-                                    <p class="name" style="font-size: 14px;">1.DungNNH</p>
-                                    <h3 style="font-size: 14px;">3000 point</h3>
-                                </div>
-                            </li>
+                            <li v-for="item,index in leader_boards" :key="index" >
+                            <div class="leader-board-row" v-if="item.user.id!=this.id_user" @click="goToAccount(item.user.id)">
+                                <span class="row-pic"><img src="../../assets/img/avatar.png" class="row-pic"/></span>
+                                <span class="row-username">{{ index +1 }}. </span>
+                                <span class="row-username"> {{ item.user.username }}</span>
+                                <span class="row-point">{{item.total_score}}</span>
+                            </div>
+                            <div class="leader-board-row" v-else style="background-color: #2b3648; color:white" @click="goToAccount(item.user.id)">
+                                <span class="row-pic"><img src="../../assets/img/avatar.png" class="row-pic"/></span>
+                                <span class="row-username">{{ index +1 }}. </span>
+                                <span class="row-username"> {{ item.user.username }}</span>
+                                <span class="row-point">{{item.total_score}}</span>
+                            </div>
+                        </li>
 
                         </ul>
                         
@@ -135,9 +123,9 @@ export default {
             score : 0,
             vocabularies:[],
             url_learn_word : "",
-            isRatingBf:false,
             mark :0,
-
+            leader_boards:[],
+            isRatingBf:false
         }
     },
 
@@ -149,51 +137,53 @@ export default {
         }
 
         this.$store.commit('setNav',nav)
-        this.id_course = this.$route.params.id_course
         this.id_level = this.$route.params.id_level
         const id_vocabulary = this.$route.params.id_vocabulary
         this.score = this.$route.params.score
         const id_user = this.$store.state.user.id
+        this.id_course = this.$route.params.id_course
 
-        await axios
-                    .get(`http://127.0.0.1:8000/api/v1/course/learn?level=${this.id_level}&user=${id_user}&course=${this.id_course}`)
-                    .then((response) => {
-                        this.vocabularies = response.data.data
-                        console.log("lisr")
-                        console.log(this.vocabularies)
-                    })
-                    .catch((error) => console.log(error));
+        // await axios
+        //             .get(`http://127.0.0.1:8000/api/v1/course/learn?level=${this.id_level}&user=${id_user}&course=${this.id_course}`)
+        //             .then((response) => {
+        //                 this.vocabularies = response.data.data
+        //                 console.log(this.vocabularies)
+        //             })
+        //             .catch((error) => console.log(error));
 
         const data={
                         "user" : id_user,
                         "level" : this.id_level,
-                        "course": this.id_course,
                         "vocabulary" : id_vocabulary,
                         "score": this.score
                     }
         await axios
-            .patch('http://127.0.0.1:8000/api/v1/study/exam_complete',data)
-            .then((response) => {
-                console.log(response.data)
-                if (response.data.data.is_complete){
-                    this.url_learn_word = `http://localhost:8080/course/${this.id_course}`
-                }
-                else{
-                    this.url_learn_word=`http://localhost:8080/learning/course/${this.id_course}/${this.id_level}`
-                }
+            .patch('http://127.0.0.1:8000/api/v1/study/exam_review',data)
+            .then((response) => {               
+                    this.url_learn_word=`http://localhost:8080/course/${this.id_course}/level/${this.id_level}`
+                
             })
             .catch((error) => console.log(error));
 
             await axios
+                .get(`http://127.0.0.1:8000/api/v1/leader-board/${this.id_course}`)
+                .then((response) => {
+                    this.leader_boards = response.data
+                    console.log(this.leader_boards)                    
+                })
+                .catch((error) => console.log(error));
+
+            await axios
                 .get(`http://127.0.0.1:8000/api/v1/course/rating/${this.id_course}/${this.$store.state.user.id}`)
                 .then((response) => {
-                    if (response.data.length > 0 )   {
-                        console.log("testttt")
+
+                    if (response.data != null)   {
                         this.isRatingBf = true
-                        console.log(this.isRatingBf)
                     }             
                 })
                 .catch((error) => console.log(error));
+
+
         this.$store.commit('setIsLoading',false)
     },
     methods:{
@@ -211,8 +201,8 @@ export default {
                 })
                 .catch((error) => console.log(error));
         },
+        
     }
-    
 }
 </script>
 

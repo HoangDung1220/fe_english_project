@@ -1,8 +1,7 @@
 <template>
     <div>
       <el-container class="layout-container-demo">
-        <SideBar />
-        <el-container style="background-color: #f9f8f8;">
+        <el-container style="background-color: #f9f8f8; min-height:100vh;height: 100%;">
           <el-main>
             <div class="main-container">
                 <el-row class="title">
@@ -160,6 +159,7 @@
                     .catch((error) => console.log(error));
           }
          
+
           for (var index in this.words){
             if (this.words[index].length>0){
               const formData = new FormData();
@@ -176,7 +176,7 @@
             await axios
                     .post(`http://127.0.0.1:8000/api/v1/vocabulary/create`,formData)
                     .then((response) => {
-                      this.$router.push("/admin/course")
+                      this.$router.push("/course")
                     })
                     .catch((error) => console.log(error));
                   }

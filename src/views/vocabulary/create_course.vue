@@ -1,8 +1,7 @@
 <template>
     <div>
       <el-container class="layout-container-demo">
-        <SideBar />
-        <el-container style="background-color: #f9f8f8;">
+        <el-container style="background-color: #f9f8f8;min-height:100vh;height: 100%;">
           <el-main>
             <div class="main-container">
                 <el-row class="title">
@@ -77,7 +76,6 @@
                             <el-row>
                                 <el-radio-group v-model="status" class="ml-4">
                                     <el-radio label="public" size="large">Public</el-radio>
-                                    <el-radio label="protected" size="large">Protected</el-radio>
                                     <el-radio label="private" size="large">Private</el-radio>
                                 </el-radio-group>
                             </el-row>
@@ -163,11 +161,12 @@
                 formData.append('description',this.description)
                 formData.append('tag',this.tag)
                 formData.append('status',this.status)
-
+                console.log("statuss")
+                console.log(this.status)
                 axios
                 .patch(`http://127.0.0.1:8000/api/v1/course/create/${this.id_course}`,formData)
                     .then((response) => {
-                        this.$router.push(`/admin/course/create/detail/${this.id_course}`)
+                        this.$router.push(`/course/create/detail/${this.id_course}`)
                     })
                     .catch((error) => console.log(error));
         }

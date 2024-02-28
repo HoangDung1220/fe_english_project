@@ -23,6 +23,15 @@ export default createStore({
       is_space:false,
     },
     isWorkspace : false,
+    isAdmin: "false",
+    admin_page:false,
+    sidebar:{
+      dashboard:true,
+      course:false,
+      group:false,
+      workspace:false,
+      account:false
+    }
   },
   getters: {
    
@@ -35,6 +44,7 @@ export default createStore({
         state.isAuthenticated = true
         state.user.id = localStorage.getItem('userid')
         state.user.username = localStorage.getItem('username')
+        state.isAdmin = localStorage.getItem('isAdmin')
 
       } else{
         state.token.access = '',
@@ -55,10 +65,15 @@ export default createStore({
       state.isAuthenticated = true
     },
 
+    setAdmin(state){
+      state.isAdmin = "true"
+    },
+
     removeToken(state){
       state.token.access = ''
       state.token.refresh = ''
       state.isAuthenticated = false
+      state.isAdmin = "false"
     },
 
     setUser(state,id, username, roles){
@@ -78,6 +93,15 @@ export default createStore({
       state.nav.is_home = nav.is_home
       state.nav.is_group = nav.is_group
       state.nav.is_space = nav.is_space
+    },
+
+    setSideBar(state, sidebar){
+      state.sidebar.dashboard = sidebar.dashboard
+      state.sidebar.course = sidebar.course
+      state.sidebar.group = sidebar.group
+      state.sidebar.workspace = sidebar.workspace
+      state.sidebar.account = sidebar.account
+
     }
 
   },

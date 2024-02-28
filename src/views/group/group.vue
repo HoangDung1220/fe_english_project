@@ -8,20 +8,7 @@
             <el-col :span="6" style="z-index: 3;position: relative" >
                 <div class="nav" style="min-height:100vh;height: 100%;">
                         <el-row class="group" style="cursor: pointer;">Group</el-row>
-                        <el-row> 
-                            <el-col :span="2"></el-col>
-                            <el-col :span="20">
-                                <el-input
-                                v-model="input3"
-                                placeholder="Please input"
-                                class="input-with-select"
-                                >
-                                <template #prepend>
-                                    <el-button><el-icon><Search /></el-icon></el-button>
-                                </template> 
-                                </el-input>
-                            </el-col>
-                        </el-row>
+                       
 
                         <el-row style="margin-top: 10px;" class="item_card_group_1" v-if="is_suggest && id_group ==0" >
                             <el-col :span="2"></el-col>
@@ -59,11 +46,10 @@
                         <hr/>
                         <el-row style="cursor: pointer;">
                             <el-col :span="16" class="group">Group had joined</el-col>
-                            <el-col :span="6" class="all" >Xem tất cả<el-icon size="15"><ArrowDown /></el-icon></el-col>
                         </el-row>
 
-                        <div v-for="item, index in groups" :key="index">
-                        <el-row style="margin-top: 10px;" :gutter="20" class="group-joined" v-if="id_group!=item.group.id" @click="choiceGroup(item.group.id)">
+                        <div v-for="item, index in groups" :key="index" style="margin:2px">
+                        <el-row style="margin-top: 10px; margin-right:10px" :gutter="20" class="group-joined" v-if="id_group!=item.group.id" @click="choiceGroup(item.group.id)" >
                             <el-col :span="1"></el-col>
                             <el-col :span="5">
                                 <img  style="height: 50px;width: 80px;" v-bind:src="item.group.image" >
@@ -75,7 +61,7 @@
                             </el-col>
                         </el-row>
 
-                        <el-row style="margin-top: 10px;background-color: #E6E7EB; " :gutter="20" class="group-joined" v-if="id_group==item.group.id" @click="choiceGroup(item.group.id)">
+                        <el-row style="margin-top: 10px;background-color: #E6E7EB;  margin-right:10px" :gutter="20"  class="group-joined" v-if="id_group==item.group.id" @click="choiceGroup(item.group.id)">
                             <el-col :span="1"></el-col>
                             <el-col :span="5">
                                 <img  style="height: 50px;width: 80px;" v-bind:src="item.group.image" >
@@ -96,91 +82,39 @@
 
             <el-col :span="18" v-if="is_suggest && mode==1" style="background-color: #EBEDF0;;">
                 <div class="suggest">SUGGEST</div>
-                
-                <el-row :gutter="20">
+                <div v-for="item, index in groups_other" :key="index">
+                <el-row :gutter="20" v-if ="index% 2 ==0">
                     <el-col :span="2"></el-col>
                     <el-col :span="10" class="group-item">
-                        <el-card>
+                        <el-card v-if="index<groups_other.length">
                             <el-row>
-                                <el-col :span="10"><img src="../../assets/img/group_1.jpg" class="image_group"/></el-col>
+                                <el-col :span="10"><img v-bind:src="groups_other[index].group.image" class="image_group"/></el-col>
                                 <el-col :span="14">
-                                    <div class="group_name">Hoc Toeic co ban cung MR Tru</div>
-                                    <div class="description">10 course/100 member</div>
-                                    <el-button type="primary" style="margin-top: 50px;">Join now</el-button>
+                                    <div class="group_name">{{ groups_other[index].group.name }}</div>
+                                    <div class="description">{{groups_other[index].number_course}} course/{{groups_other[index].number_member}} member</div>
+                                    <el-button type="primary" style="margin-top: 50px;" @click="joinGroup(groups_other[index].group.id)">Join now</el-button>
                                 </el-col>
                             </el-row>
                         </el-card>
                     </el-col>
                     <el-col :span="10" class="group-item">
-                        <el-card>
+                        <el-card v-if="index+1<groups_other.length">
                             <el-row>
-                                <el-col :span="10"><img src="../../assets/img/group_2.png" class="image_group"/></el-col>
+                                <el-col :span="10"><img v-bind:src="groups_other[index+1].group.image" class="image_group"/></el-col>
                                 <el-col :span="14">
-                                    <div class="group_name">Hoc Toeic co ban cung MR Tru</div>
-                                    <div class="description">10 course/100 member</div>
-                                    <el-button type="primary" style="margin-top: 50px;">Join now</el-button>
+                                    <div class="group_name">{{groups_other[index+1].group.name }}</div>
+                                    <div class="description">{{groups_other[index+1].number_course}} course/{{groups_other[index+1].number_member}} member</div>
+                                    <el-button type="primary" style="margin-top: 50px;" @click="joinGroup(groups_other[index].group.id)">Join now</el-button>
                                 </el-col>
                             </el-row>
                         </el-card>
                     </el-col>
                     
                 </el-row>
-                <el-row :gutter="20">
-                    <el-col :span="2"></el-col>
-                    <el-col :span="10" class="group-item">
-                        <el-card>
-                            <el-row>
-                                <el-col :span="10"><img src="../../assets/img/group_1.jpg" class="image_group"/></el-col>
-                                <el-col :span="14">
-                                    <div class="group_name">Hoc Toeic co ban cung MR Tru</div>
-                                    <div class="description">10 course/100 member</div>
-                                    <el-button type="primary" style="margin-top: 50px;">Join now</el-button>
-                                </el-col>
-                            </el-row>
-                        </el-card>
-                    </el-col>
-                    <el-col :span="10" class="group-item">
-                        <el-card>
-                            <el-row>
-                                <el-col :span="10"><img src="../../assets/img/group_2.png" class="image_group"/></el-col>
-                                <el-col :span="14">
-                                    <div class="group_name">Hoc Toeic co ban cung MR Tru</div>
-                                    <div class="description">10 course/100 member</div>
-                                    <el-button type="primary" style="margin-top: 50px;">Join now</el-button>
-                                </el-col>
-                            </el-row>
-                        </el-card>
-                    </el-col>
-                    
-                </el-row>
-                <el-row :gutter="20">
-                    <el-col :span="2"></el-col>
-                    <el-col :span="10" class="group-item">
-                        <el-card>
-                            <el-row>
-                                <el-col :span="10"><img src="../../assets/img/group_1.jpg" class="image_group"/></el-col>
-                                <el-col :span="14">
-                                    <div class="group_name">Hoc Toeic co ban cung MR Tru</div>
-                                    <div class="description">10 course/100 member</div>
-                                    <el-button type="primary" style="margin-top: 50px;">Join now</el-button>
-                                </el-col>
-                            </el-row>
-                        </el-card>
-                    </el-col>
-                    <el-col :span="10" class="group-item">
-                        <el-card>
-                            <el-row>
-                                <el-col :span="10"><img src="../../assets/img/group_2.png" class="image_group"/></el-col>
-                                <el-col :span="14">
-                                    <div class="group_name">Hoc Toeic co ban cung MR Tru</div>
-                                    <div class="description">10 course/100 member</div>
-                                    <el-button type="primary" style="margin-top: 50px;">Join now</el-button>
-                                </el-col>
-                            </el-row>
-                        </el-card>
-                    </el-col>
-                    
-                </el-row>
+                </div>
+             
+                  
+              
             </el-col>
 
             <el-col :span="18" v-if="mode==1 && !is_suggest">
@@ -195,7 +129,7 @@
                                 <el-col :span="14">
                                     <div class="group_name">{{ groups[index].group.name }}</div>
                                     <div class="description">{{groups[index].number_course}} course/{{groups[index].number_member}} member</div>
-                                    <el-button type="primary" style="margin-top: 50px;">View now</el-button>
+                                    <el-button type="primary" style="margin-top: 50px;" @click="goToGroup()">View now</el-button>
                                 </el-col>
                             </el-row>
                         </el-card>
@@ -207,7 +141,7 @@
                                 <el-col :span="14">
                                     <div class="group_name">{{groups[index+1].group.name }}</div>
                                     <div class="description">{{groups[index+1].number_course}} course/{{groups[index+1].number_member}} member</div>
-                                    <el-button type="primary" style="margin-top: 50px;">View now</el-button>
+                                    <el-button type="primary" style="margin-top: 50px;" @click="goToGroup()">View now</el-button>
                                 </el-col>
                             </el-row>
                         </el-card>
@@ -219,14 +153,21 @@
             </el-col>
 
             <el-col :span="18" v-if="mode==2" style="background-color: #EBEDF0;">
-                        <el-row class="header_group" style="width: 100%;">  
-                                <el-col :span="24">
-                                    <img src="../../assets/img/group_4.jpg" alt="" style="height: 350px;width: 100%;border: 1px solid white;">
+                        <el-row class="header_group" style="width: 100%;">
+                              <el-col :span="2"></el-col>
+                                <el-col :span="5">
+                                    <img v-bind:src="this.group.image" alt="" style="height: 200px;width: 100%;border: 1px solid white;margin-top:15px">
+                                </el-col>
+                                <el-col :span="10" style="margin:20px">
+                                    <el-row  class="title">{{ group.name }}</el-row>
+                                    <el-row  style="font-size: 13px; margin-top:-22px" v-if="group.status=='public'"><font-awesome-icon icon="globe"  /><span style="margin-left:5px;margin-top:-5px">Public group</span></el-row>
+                                    <el-row  style="font-size: 13px; margin-top:-22px" v-else>Private group</el-row>
+
                                 </el-col>
                         </el-row>
                         <el-row>
-                            <el-tabs v-model="activeName" class="demo-tabs tab_group" @tab-click="handleClick">
-                                <el-tab-pane label="Post" name="first">
+                            <el-tabs v-model="activeName" class="demo-tabs tab_group" @click="handleClick()">
+                                <el-tab-pane label="Post" name="post">
                                     <el-row>
                                         <el-col :span="2"></el-col>
                                         <el-col :span="20">
@@ -282,8 +223,7 @@
                                                             <el-row class="text_time">{{item.post.created_at}}</el-row>
                                                         </el-col>
                                                         <el-col :span="5" v-if="item.post.user.id == this.$store.state.user.id">
-                                                            <el-button type="danger">Remove</el-button>
-                                                            <el-button type="primary">Edit</el-button>
+                                                            <el-button type="danger" @click="deletePost(item.post.id)">Remove</el-button>
                                                         </el-col>
                                                     </el-row>
                                                 </div>
@@ -291,22 +231,20 @@
                                                 <div class="content_post" >
                                                     <el-row>{{ item.post.content }}</el-row>
                                                     <div v-for="item1,index1 in item.pictures" :key="index1" style="margin-top: 10px;">
-                                                    <el-row :gutter="10" v-if="index1%4==0" >
-                                                        <el-col :span="5" v-if="index1<item.pictures.length">
+                                                    <el-row :gutter="10" v-if="index1%3==0" >
+                                                        <el-col :span="6" v-if="index1<item.pictures.length">
                                                             <img alt="Avatar" class="image_post" v-bind:src="item.pictures[index1].image" >
                                                         </el-col>
 
-                                                        <el-col :span="5"  v-if="index1+1<item.pictures.length">
+                                                        <el-col :span="6"  v-if="index1+1<item.pictures.length">
                                                             <img alt="Avatar" class="image_post" v-bind:src="item.pictures[index1+1].image" >
                                                         </el-col>
 
-                                                        <el-col :span="5"  v-if="index1+2<item.pictures.length">
+                                                        <el-col :span="6"  v-if="index1+2<item.pictures.length">
                                                             <img alt="Avatar" class="image_post" v-bind:src="item.pictures[index1+2].image" >
                                                         </el-col>
 
-                                                        <el-col :span="5"  v-if="index1+3<item.pictures.length">
-                                                            <img alt="Avatar" class="image_post" v-bind:src="item.pictures[index1+3].image" >
-                                                        </el-col>
+                                                        
 
 
                                                     </el-row>
@@ -336,8 +274,116 @@
                                         <el-col :span="2"></el-col>
                                     </el-row>
                                 </el-tab-pane>
-                                <el-tab-pane label="Member" name="second">Config</el-tab-pane>
-                                <el-tab-pane label="Abount" name="third">Role</el-tab-pane>
+                                <el-tab-pane label="Member" name="member">
+                                    <el-row>
+                                        <el-col :span="3"></el-col>
+                                        <el-col :span="18">
+                                        <el-card>
+                                            <hr>
+                                            <el-row class="title-1">
+                                                Admin Group - Management Group
+                                            </el-row>
+
+                                            <div v-for="it1,id1 in members" :key="id1">
+                                                    <el-row style="font-size:20px; cursor: pointer;" v-if="it1.role=='admin_group'">
+                                                        <el-col :span="2"></el-col>
+                                                        <el-col :span="2">
+                                                            <img src="../../assets/img/avatar.png" alt="Avatar" style="border-radius: 50%;"/>
+                                                        </el-col>
+                                                        <el-col :span="18" style="margin-left: 30px; margin-top:7px">
+                                                            <el-row class="text_name">{{ it1.member.username }}</el-row>
+                                                        </el-col>
+                                                    </el-row>
+                                                </div>
+
+                                            <hr>
+                                            <el-row class="title-1">
+                                                Member
+                                            </el-row>
+
+                                            <div v-for="it,id in members" :key="id">
+                                                <div v-if="it.member.id==this.$store.state.user.id && it.role!='admin_group'">
+                                                    <el-row style="font-size:20px; cursor: pointer; width:100%" >
+                                                        <el-col :span="2"></el-col>
+                                                        <el-col :span="2">
+                                                            <img src="../../assets/img/avatar.png" alt="Avatar" style="border-radius: 50%;"/>
+                                                        </el-col>
+                                                        <el-col :span="15" style="margin-left: 30px; margin-top:7px">
+                                                            <el-row class="text_name">{{ it.member.username }}</el-row>
+                                                        </el-col>
+                                                        <el-col :span="3">
+                                                            <el-dropdown>
+                                                                <span class="el-dropdown-link">
+                                                                    <el-icon><More /></el-icon>
+                                                                </span>
+                                                                <template #dropdown>
+                                                                <el-dropdown-menu>
+                                                                    <el-dropdown-item class="clearfix" @click="outGroup(it.member.id)">
+                                                                    Out group
+                                                                    </el-dropdown-item>
+                                                                    
+                                                                </el-dropdown-menu>
+                                                                </template>
+                                                            </el-dropdown>
+                                                        </el-col>
+                                                    </el-row>
+                                                </div>
+                                            </div>
+
+                                            <div v-for="it,id in members" :key="id">
+                                                <div v-if="it.role!='admin_group' && it.member.id!=this.$store.state.user.id">
+                                                    <el-row style="font-size:20px; cursor: pointer;">
+                                                        <el-col :span="2"></el-col>
+
+                                                        <el-col :span="2">
+                                                            <img src="../../assets/img/avatar.png" alt="Avatar" style="border-radius: 50%;"/>
+                                                        </el-col>
+                                                        <el-col :span="15" style="margin-left: 30px; margin-top:7px">
+                                                            <el-row class="text_name">{{ it.member.username }}</el-row>
+                                                        </el-col>
+                                                        <el-col :span="3" v-if="this.is_admin_group">
+                                                            <el-dropdown>
+                                                                <span class="el-dropdown-link">
+                                                                    <el-icon><More /></el-icon>
+                                                                </span>
+                                                                <template #dropdown>
+                                                                <el-dropdown-menu>
+                                                                    <el-dropdown-item class="clearfix"  @click="outGroup(it.member.id)">
+                                                                    Out group
+                                                                    </el-dropdown-item>
+                                                                    
+                                                                </el-dropdown-menu>
+                                                                </template>
+                                                            </el-dropdown>
+                                                        </el-col>
+                                                    </el-row>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <el-row class="title-1">
+                                                Browse other member that fit your known
+                                            </el-row>
+
+                                            <div v-for="it2,id2 in suggest_member" :key="id2">
+                                                    <el-row style="font-size:20px; cursor: pointer;">
+                                                        <el-col :span="2"></el-col>
+                                                        <el-col :span="2">
+                                                            <img src="../../assets/img/avatar.png" alt="Avatar" style="border-radius: 50%;"/>
+                                                        </el-col>
+                                                        <el-col :span="15" style="margin-left: 30px; margin-top:7px">
+                                                            <el-row class="text_name">{{ it2.username }}</el-row>
+                                                        </el-col>
+                                                        <el-col :span="3"><el-button @click="inviteSuggest(it2.id)">Invite</el-button></el-col>
+                                                    </el-row>
+                                                </div>
+
+                                            <hr>
+
+                                        </el-card>
+                                        </el-col>
+                                        <el-col :span="3"></el-col>
+                                    </el-row>
+                                </el-tab-pane>
                             </el-tabs>
                         </el-row>
                        
@@ -406,7 +452,6 @@
                     </el-col>
                     
                     <el-col :span="2" style="margin-left:10px; margin-top: 5px; cursor: pointer;">
-                        <font-awesome-icon icon="paperclip" size="xl"/>
                     </el-col>
                 </el-row>
 
@@ -436,6 +481,7 @@
                         <el-row class="text_content">{{ item1.content }}</el-row>
                     </el-col>
                 </el-row>
+                <hr>
                 
                 </div>
             </el-scrollbar>
@@ -445,14 +491,19 @@
 
 <script>
 import axios from "axios";
+import { toast } from "bulma-toast";
 
 import fontawesome from "@fortawesome/fontawesome";
 import brands from "@fortawesome/fontawesome-free-brands";
 import faSpinner from "@fortawesome/fontawesome-free-solid/faHeart"; 
 import faAttach from "@fortawesome/fontawesome-free-solid/faPaperclip"; 
+import faGlobe from "@fortawesome/fontawesome-free-solid/faGlobe"; 
+import { ElMessage } from 'element-plus'
+
 
 fontawesome.library.add(brands, faSpinner);
 fontawesome.library.add(brands, faAttach);
+fontawesome.library.add(brands, faGlobe);
 
 export default{
     name : "Group",
@@ -478,6 +529,12 @@ export default{
             contentComment:"",
             lst_is_reply : [],
             contentSubComment:"",
+            activeName:"post",
+            group:{},
+            members:[],
+            is_admin_group:false,
+            suggest_member:[],
+            groups_other:[]
 
         }
     },
@@ -498,12 +555,81 @@ export default{
                     this.groups = response.data
                 })
                 .catch((error) => console.log(error));
+        await axios
+                .get(`http://127.0.0.1:8000/api/v1/group/space/suggest/${this.id_user}`)
+                .then((response) => {
+                    this.groups_other = response.data
+                })
+                .catch((error) => console.log(error));
 
         this.$store.commit('setIsLoading',false)
 
     },
     methods:
     {
+        goToGroup(){
+            this.$router.push("/m-group")
+        },
+        
+        deletePost(id){
+            axios
+            .delete(`http://127.0.0.1:8000/api/v1/post/delete/${id}`)
+            .then((response) => {
+                ElMessage.success("Delete course successful")
+                this.getListPost()
+            })
+            .catch((error) => ElMessage.error("Delete course fail"))
+        },
+
+        inviteSuggest(id_user){
+        const data = {
+                "group" : this.id_group,
+                "member" : id_user,
+                "user_invite_join": this.$store.state.user.id
+            }
+            axios
+                .post(`http://127.0.0.1:8000/api/v1/group/member`,data)
+                .then((response) => {
+                    ElMessage.success("You invite member successful")
+                    axios
+                    .get(`http://127.0.0.1:8000/api/v1/group/member/${this.id_group}`)
+                    .then((response) => {
+                        this.members = response.data
+                        for (var item in this.members){
+                            if (this.members[item].role=="admin_group" && this.members[item].member.id==this.$store.state.user.id){
+                                this.is_admin_group = true
+                            }
+                        }})
+
+                })
+                .catch((error) => {
+                    ElMessage.error("Can't invite member to group")
+            })
+            this.isInvite=false
+    },
+        outGroup(id){
+            axios
+                .delete(`http://127.0.0.1:8000/api/v1/group/member/${this.id_group}/${id}`)
+                .then((response) => {
+                    ElMessage.success("Member out group successful")
+                    axios
+                    .get(`http://127.0.0.1:8000/api/v1/group/member/${this.id_group}`)
+                    .then((response) => {
+                        this.members = response.data
+                        for (var item in this.members){
+                            if (this.members[item].role=="admin_group" && this.members[item].member.id==this.$store.state.user.id){
+                                this.is_admin_group = true
+                            }
+                        }
+            })
+            .catch((error) => console.log(error));
+
+                })
+                .catch((error) => 
+                ElMessage.error("Can't delete member to group")
+                );
+        },
+
         goToSuggest(){
             this.is_suggest = true
             this.id_group = 0
@@ -524,7 +650,16 @@ export default{
             .then((response) => {
                 this.post = response.data
             })
-            .catch((error) => console.log(error));
+            .catch((error) => {
+                toast({
+                message: "Can't create course. Please check again",
+                type: "is-danger",
+                dismissible: true,
+                pauseOnHover: true,
+                duration: 2000,
+                position: "top-right",
+              })
+            });
 
             await axios
             .get(`http://127.0.0.1:8000/api/v1/post/comment/${this.id_post}`)
@@ -564,13 +699,22 @@ export default{
         console.log(this.content)
       },
       choiceGroup(id){
+        this.activeName = "post"
         this.mode = 2
         this.id_group = id
         this.getListPost()
+
         axios
             .get(`http://127.0.0.1:8000/api/v1/auth/user/${this.$store.state.user.id}`)
             .then((response) => {
                 this.username = response.data.username
+            })
+            .catch((error) => console.log(error));
+
+        axios
+            .get(`http://127.0.0.1:8000/api/v1/group/detail/${this.id_group}`)
+            .then((response) => {
+                this.group = response.data
             })
             .catch((error) => console.log(error));
 
@@ -612,6 +756,7 @@ export default{
         this.content = ""
         this.fileList=[]
         this.is_attach=false
+        this.lst_motation[this.lst_motation.length]="0"
         this.$store.commit('setIsLoading',false)
 
       },
@@ -699,8 +844,76 @@ export default{
                 this.getListPost();
             })
             .catch((error) => console.log(error));
+        },
+
+    async handleClick(){
+        this.$store.commit('setIsLoading',true)
+
+        console.log(this.activeName)
+        if (this.activeName=="member"){
+            axios
+            .get(`http://127.0.0.1:8000/api/v1/group/member/${this.id_group}`)
+            .then((response) => {
+                this.members = response.data
+                for (var item in this.members){
+                    if (this.members[item].role=="admin_group" && this.members[item].member.id==this.$store.state.user.id){
+                        this.is_admin_group = true
+                    }
+                }
+            })
+            .catch((error) => console.log(error));
+
+            await axios
+                .get(`http://127.0.0.1:8000/api/v1/auth/suggest?user=${this.$store.state.user.id}&group=${this.id_group}`)
+                .then((response) => {
+                    this.suggest_member = response.data
+                    console.log(this.suggest_member)
+                })
+                .catch((error) => console.log(error));
         }
-}
+        this.$store.commit('setIsLoading',false)
+
+    },
+    async joinGroup(id){
+        const data = {
+                "group" : id,
+                "member" : this.$store.state.user.id,
+                "user_invite_join": parseInt(this.$store.state.user.id)
+
+            }
+            await axios
+                .post(`http://127.0.0.1:8000/api/v1/group/member`,data)
+                .then((response) => {
+                    this.options = response.data
+                })
+                .catch((error) => {
+                    toast({
+                        message: "Can't join group. Please try again",
+                        type: "is-danger",
+                        dismissible: true,
+                        pauseOnHover: true,
+                        duration: 2000,
+                        position: "top-right",
+              })
+            })
+
+            await axios
+                .get(`http://127.0.0.1:8000/api/v1/group/space/suggest/${this.id_user}`)
+                .then((response) => {
+                    this.groups_other = response.data
+                })
+                .catch((error) => console.log(error));
+
+            await axios
+                .get(`http://127.0.0.1:8000/api/v1/group/space/${this.id_user}`)
+                .then((response) => {
+                    this.groups = response.data
+                })
+                .catch((error) => console.log(error));
+
+        
+    },
+    }
     
 }
 </script>
@@ -715,6 +928,19 @@ export default{
   height : 80px
 }
 
+.title-1{
+    display: inline-block;
+    max-width: 100%;
+    margin-top: 0px;
+    padding-right: 10px;
+    vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 45px;
+    font-size: 25px;
+    color: #2b3648;
+}
 .lds-dual-ring:after{
   content : '';
   display: block;

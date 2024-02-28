@@ -8,7 +8,7 @@
             </el-col>
             <el-col :span="10">
             <el-row class="title-course-1"><h3>{{ course.title }}</h3></el-row>
-            <el-row class="description" style=" margin-bottom:3px">{{ course.description }}</el-row>
+            <el-row class="description" style=" margin-bottom:3px;margin-top: -10px;">{{ course.description }}</el-row>
             </el-col>
             <el-col :span="7">
                 <el-row><el-button class="button-1" color="#ffc000">Get started now</el-button></el-row>
@@ -20,9 +20,12 @@
     <div class="nav">
         <el-row>
             <el-col :span="3"></el-col>
-            <el-col :span="10" class="level">
+            <el-col :span="15" class="level">
                 <el-button round color="#b9d7e3" v-if="level.length>0">Levels: {{ this.level.length }}</el-button>
                 <el-button round color="#b9d7e3" v-else>Words</el-button>
+            </el-col>
+            <el-col :span="5" style="margin-top: 20px;">
+                <el-button round color="#b9d7e3" v-if="course.user_created == this.$store.state.user.id" @click="goToEdit()">Edit course</el-button>
             </el-col>
         </el-row>
     </div>
@@ -33,7 +36,30 @@
 
     <div class="content-course">
         <el-row v-if="level.length">
-            <el-col :span="3"></el-col>
+            <el-col :span="2"></el-col>
+            <el-col :span = "6">
+                <el-card style="width: 80%;">
+                    <div class="title-leader-board">Leader board </div>
+                    <ul>
+                        <li v-for="item,index in leader_boards" :key="index" >
+                            <div class="leader-board-row" v-if="item.user.id!=this.id_user" @click="goToAccount(item.user.id)">
+                                <span class="row-pic"><img src="../../assets/img/avatar.png" class="row-pic"/></span>
+                                <span class="row-username">{{ index +1 }}. </span>
+                                <span class="row-username"> {{ item.user.username }}</span>
+                                <span class="row-point">{{item.total_score}}</span>
+                            </div>
+                            <div class="leader-board-row" v-else style="background-color: #2b3648; color:white" @click="goToAccount(item.user.id)">
+                                <span class="row-pic"><img src="../../assets/img/avatar.png" class="row-pic"/></span>
+                                <span class="row-username">{{ index +1 }}. </span>
+                                <span class="row-username"> {{ item.user.username }}</span>
+                                <span class="row-point">{{item.total_score}}</span>
+                            </div>
+                        </li>
+                    </ul>
+                </el-card>
+            </el-col>
+            <el-col :span="1"></el-col>
+
             <el-col :span="15" v-for="(item, index) in level" :key="index" >
                 <el-row :gutter="20" class="row-item" v-if="index%5==0">
                     <el-col :span="4" v-if="index<level.length">
@@ -160,6 +186,8 @@
                 </el-row>
               
             </el-col>
+
+           
         </el-row>
         <div v-else>
             <el-row style="margin-bottom: -50px;">
@@ -206,11 +234,15 @@ export default {
         id_course : "",
         level_course :[],
         status_user_level : [],
+        leader_boards:[],
+        id_user:0,
+        no_learned:false
 
     }
    },
    async mounted(){
     this.$store.commit('setIsLoading',true)
+    this.id_user = this.$store.state.user.id
     const nav = {
             "is_home" : false,
             "is_course": true
@@ -231,9 +263,21 @@ export default {
     await axios
                 .get(`http://127.0.0.1:8000/api/v1/self/course?user=${id_user}&course=${this.id_course}`)
                 .then((response) => {
-                    this.level_course = response.data.data
-                    this.initialStatus()
+                    if (response.data != null){
+                        this.level_course = response.data.data
+                        this.initialStatus()
+                    } else {
+                        this.no_learned = true
+                    }
                     
+                })
+                .catch((error) => console.log(error));
+    
+    await axios
+                .get(`http://127.0.0.1:8000/api/v1/leader-board/${this.id_course}`)
+                .then((response) => {
+                    this.leader_boards = response.data
+                    console.log(this.leader_boards)                    
                 })
                 .catch((error) => console.log(error));
 
@@ -242,6 +286,9 @@ export default {
    },
 
    methods:{
+    goToEdit(){
+        this.$router.push(`/course/edit/${this.id_course}`)
+    },
      goToLevel(id_level){
         this.$store.commit('setIsLoading',true)
         this.$router.push(`/course/${this.id_course}/level/${id_level}`)
@@ -254,12 +301,17 @@ export default {
             this.status_user_level[this.level[i].id] = "todo"
         }
 
+        if (!this.no_learned){
         for (var i = 0; i<this.level_course.length; i++){
             if (this.level_course[i].is_complete) this.status_user_level[this.level_course[i].level] = 'done'
             if (!this.level_course[i].is_complete) this.status_user_level[this.level_course[i].level] = 'doing'
         }
+    }
         console.log("plessss")
         console.log(this.status_user_level)
+    },
+    goToAccount(id){
+        this.$router.push(`/account/${id}`)
     }
 
    }

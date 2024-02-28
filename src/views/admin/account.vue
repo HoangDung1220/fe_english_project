@@ -4,7 +4,13 @@
         <SideBar />
         <el-container style="background-color: #f9f8f8;">
           <el-main>
+            <div class="is-loading-bar has-text-centered" :class="{'is-loading': $store.state.isLoading}">
+                     <div class="lds-dual-ring"></div>
+            </div>
             <div class="main-container">
+                <el-row class="title">
+                    <el-col :span="17"><h1>Management Account </h1></el-col>
+                </el-row>
                 <el-row>
                     <el-col :span="18">{{tableData.length}} accounts</el-col>
                     <el-col :span="2"><el-button type="primary"><el-icon color="white"><Plus /></el-icon > Add</el-button></el-col>
@@ -56,11 +62,7 @@
                 >
             </template>
             </el-table-column>
-  </el-table>
-
-  <el-pagination background layout="prev, pager, next" :total="100" style="margin-top: 20px;" />
-
-              
+  </el-table>    
             </div>
           </el-main>
         </el-container>
@@ -87,6 +89,7 @@
     
     },
     mounted(){
+        this.$store.state.admin_page = true
         this.getAccount()
     },
     methods:{
@@ -154,5 +157,42 @@
         width: 480px;
         background-color: green;
     }
+
+    .lds-dual-ring{
+  display: inline-block;
+  width : 80px;
+  height : 80px
+}
+
+.lds-dual-ring:after{
+  content : '';
+  display: block;
+  width: 64px;
+  height: 64px;
+  margin: 8px;
+  border-radius: 50%;
+  border: 6px solid #ccc;
+  border-color: #ccc transparent #ccc transparent;
+  animation: lds-dual-ring 1.2s linear infinite;
+}
+
+@keyframes lds-dual-ring {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+.is-loading-bar {
+    height: 0;
+    overflow: hidden;
+    -webkit-transition: all 0.3s;
+    transition: all 0.3s;
+    
+    &.is-loading {
+        height: 80px;
+    }
+}
   </style>
   

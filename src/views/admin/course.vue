@@ -4,16 +4,19 @@
         <SideBar />
         <el-container style="background-color: #f9f8f8;">
            
-          <el-main>
+          <el-main style="margin-top: 30px;">
             <div class="is-loading-bar has-text-centered" :class="{'is-loading': $store.state.isLoading}">
                      <div class="lds-dual-ring"></div>
             </div>
-            <div class="main-container">
+            <div class="main-container" >
+                <el-row class="title">
+                    <el-col :span="17"><h1>Management Course </h1></el-col>
+                </el-row>
                 <el-row>
                     <el-col :span="18">{{ this.tableData.length }} course</el-col>
-                    <el-col :span="2"><el-button type="primary"><el-icon color="white"><Plus /></el-icon > Add</el-button></el-col>
+                    <el-col :span="2"><el-button type="primary" @click="addCourse()"><el-icon color="white"><Plus /></el-icon > Add</el-button></el-col>
                     <el-col :span="4">
-                        <input type="text" id="search_course" placeholder="Search course" @click="searchCourse()"/>
+                        <input type="text" id="search_course" placeholder="Search course" @click="searchCourse()" v-bind="search_input" @change="search()"/>
                     </el-col>
                 </el-row>
 
@@ -79,20 +82,19 @@
 
             <el-table-column label="Operations">
             <template #default="scope">
-                <el-button size="small" @click="handleEdit(scope.$index, scope.row)"
+                <el-button size="small" @click="getCourseDetail(scope.row.id)"
                 >Edit</el-button
                 >
                 <el-button
                 size="small"
                 type="danger"
-                @click="handleDelete(scope.$index, scope.row)"
+                @click="deleteCourse(scope.row.id)"
                 >Delete</el-button
                 >
             </template>
             </el-table-column>
   </el-table>
 
-  <el-pagination background layout="prev, pager, next" :total="100" style="margin-top: 20px;" />
 
               
             </div>
@@ -105,12 +107,15 @@
   <script>
   import SideBar from "@/components/Sidebar.vue";
   import axios from "axios";
+  import { ElMessage } from 'element-plus'
+
   export default {
     name: "Dashboard",
   
     data() {
       return {
-        tableData :  []
+        tableData :  [],
+        search_input:""
        
       };
     },
@@ -119,10 +124,12 @@
     
     },
     mounted(){
+        this.$store.state.admin_page = true
         this.getCourse();
     },
     methods:{
         async getCourse(){
+            this.tableData=[]
             this.$store.commit('setIsLoading',true)
             await axios
                 .get("http://127.0.0.1:8000/api/v1/course/admin")
@@ -151,12 +158,70 @@
 
         async getCourseDetail(id){
               this.$store.commit('setIsLoading',true)
-              this.$router.push(`/course/${id}`)
+              // chua co level duy chuyen den man hinh khoi tao
+              // co level thi duy chuyen den man hinh edit  
+              await axios
+                .get(`http://127.0.0.1:8000/api/v1/course/level/${id}`)
+                .then((response) => {
+                    if (response.data.length>0){
+                        this.$router.push(`/admin/course/edit/${id}`)
+                    } else 
+                    {
+                        this.$router.push(`/admin/course/create/detail/${id}`)
+                    }
+
+                })
+                .catch((error) => console.log(error));
+
               this.$store.commit('setIsLoading',false)
         },
         searchCourse(){
             document.getElementById("search_course").style.borderBottom = "2px solid rgb(0, 0, 139)";
-        }
+            
+        },
+        async search(){
+            var tmp = document.getElementById("search_course").value
+            this.tableData=[]
+            this.$store.commit('setIsLoading',true)
+            await axios
+                .get(`http://127.0.0.1:8000/api/v1/course/admin?search=${tmp}`)
+                .then((response) => {
+                    const list_course = response.data
+                    for (var item in list_course){
+                        const data = {
+                            "id" : list_course[item].course.id,
+                            "date" : list_course[item].course.created_at,
+                            "name" : list_course[item].course.title,
+                            "author" : list_course[item].course.user_name,
+                            "number_learning":list_course[item].course.number_user_learn,
+                            "rating":list_course[item].rating,
+                            "tag":list_course[item].course.status
+
+                        }
+                        this.tableData.push(data)
+                    }
+                    console.log(this.tableData)
+
+                })
+                .catch((error) => console.log(error));
+            
+            this.$store.commit('setIsLoading',false)
+        },
+        addCourse(){
+            this.$router.push('/admin/course/create')
+        },
+        async deleteCourse(id){
+            this.$store.commit('setIsLoading',true)
+            await axios
+                .delete(`http://127.0.0.1:8000/api/v1/course/delete/${id}`)
+                .then((response) => {
+                    ElMessage.success("Delete course successful")
+                    this.getCourse()
+                })
+                .catch((error) => ElMessage.error("Delete course fail"));
+            
+            this.$store.commit('setIsLoading',false)
+        },
     },
    
   };

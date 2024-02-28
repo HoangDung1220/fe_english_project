@@ -1,50 +1,56 @@
 <template>
   <div>
        <div v-if="!this.$store.state.isManupulation">
-  <template v-if="this.$store.state.isAuthenticated">
-   <div class="header" v-if="!this.$store.state.isWorkspace">
-         <div class="menu"  >
-            <div class="menu-item"  @click="goToHome()">
-                   <span>Home</span>
-                   <div class="marked" v-if="this.$store.state.nav.is_home"></div>
-            </div>
-            <div class="menu-item" @click="goToCourse()">
-                   <span>Course</span>
-                   <div class="marked" v-if="this.$store.state.nav.is_course" ></div>
-            </div>
-           
-            <div class="menu-item" @click="goToGroup()">
-                   <span>Group</span>
-                   <div class="marked" v-if="this.$store.state.nav.is_group" ></div>
-
-            </div>
-
-            <div class="menu-item" @click="goToSpace()">
-                   <span>Workspace</span>
-                   <div class="marked" v-if="this.$store.state.nav.is_space" ></div>
-            </div>
-
-            <div class="menu-item-1" >
-              <el-row :gutter="5"><el-col :span="15"></el-col>
-                     <el-col :span="3" ><img src="https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50" style="height: 50px; width: 50px; border-radius: 50%;"/></el-col>
-                     <el-col :span="6" style="text-align: left;">
-                            <el-dropdown @command="handleCommand" style="border: none; outline: none;">
-                                   <span class="menu-item-1">
-                                   Welcome, {{ $store.state.user.username }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
-                                   </span>
-                                   <template #dropdown>
-                                   <el-dropdown-menu>
-                                          <el-dropdown-item command="a">Profile</el-dropdown-item>
-                                          <el-dropdown-item command="b">Leader board</el-dropdown-item>
-                                          <el-dropdown-item command="c" divided @click="logout()">Log out</el-dropdown-item>
-                                   </el-dropdown-menu>
-                                   </template>
-                                   </el-dropdown>
-                     </el-col>
-              </el-row>
+       <template v-if="this.$store.state.isAuthenticated">
+       <div v-if="!this.$store.state.admin_page">
+       <div class="header" v-if="!this.$store.state.isWorkspace">
+              <div class="menu"  >
+              <div class="menu-item"  @click="goToHome()">
+                     <span>Home</span>
+                     <div class="marked" v-if="this.$store.state.nav.is_home"></div>
+              </div>
+              <div class="menu-item" @click="goToCourse()">
+                     <span>Course</span>
+                     <div class="marked" v-if="this.$store.state.nav.is_course" ></div>
+              </div>
               
-            </div>
-         </div>
+              <div class="menu-item" @click="goToGroup()">
+                     <span>Group</span>
+                     <div class="marked" v-if="this.$store.state.nav.is_group" ></div>
+
+              </div>
+
+              <div class="menu-item" @click="goToSpace()">
+                     <span>Workspace</span>
+                     <div class="marked" v-if="this.$store.state.nav.is_space" ></div>
+              </div>
+
+              <div class="menu-item" @click="goToAdmin()" v-if="this.$store.state.isAdmin=='true'">
+                     <span>Admin</span>
+              </div>
+
+              <div class="menu-item-1" >
+                     <el-row :gutter="5"><el-col :span="15"></el-col>
+                            <el-col :span="3" ><img src="https://static.memrise.com/accounts/img/placeholders/empty-avatar-2.png" style="height: 50px; width: 50px; border-radius: 50%;"/></el-col>
+                            <el-col :span="6" style="text-align: left;">
+                                   <el-dropdown @command="handleCommand" style="border: none; outline: none;">
+                                          <span class="menu-item-1">
+                                          Welcome, {{ username }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                                          </span>
+                                          <template #dropdown>
+                                          <el-dropdown-menu>
+                                                 <el-dropdown-item command="a" @click="goToProfile()">Profile</el-dropdown-item>
+                                                 <el-dropdown-item command="b" @click="goToLeaderBoard()">Leader board</el-dropdown-item>
+                                                 <el-dropdown-item command="c" divided @click="logout()">Log out</el-dropdown-item>
+                                          </el-dropdown-menu>
+                                          </template>
+                                          </el-dropdown>
+                            </el-col>
+                     </el-row>
+                     
+              </div>
+              </div>
+       </div>
        </div>
        </template>
 
@@ -61,7 +67,7 @@
               <div class="header-login">
                      <div class="menu-login">
                             <div class="menu-item-login">
-                                   <el-row><el-button class="button-1" color="#ffc000">Start learning</el-button></el-row>
+                                   <el-row><el-button class="button-1" color="#ffc000" @click="login()">Start learning</el-button></el-row>
                             </div>
                             <div class="menu-item-login">
                                    <el-popover
@@ -85,10 +91,7 @@
                                    <div class="marked"></div>
                             </div>
 
-                            <div class="menu-item-login">
-                                   <span>Group</span>
-                                   <div class="marked"></div>
-                            </div>
+                           
                             
                      </div>
                     
@@ -116,9 +119,11 @@ export default {
 
        mounted(){
                      this.$store.commit('initializeStore')
+                    
                      if (this.$store.state.token){
                      axios.defaults.headers.common['Authorization'] = 'Token '+ this.$store.state.token.access
                      this.username = this.$store.state.user.username
+                     
                      } else {
                      axios.defaults.headers.common['Authorization'] = ""
                      }
@@ -156,19 +161,25 @@ export default {
                      this.$router.push('/m-group') 
               },
               goToSpace(){
-              
                      this.$router.push('/group') 
+              },
+              goToAdmin(){
+                     this.$store.state.admin_page = true
+                     this.$router.push('/admin') 
               },
               logout(){
                      axios.defaults.headers.common["Authorization"] = "";
                      localStorage.removeItem("token_access");
                      localStorage.removeItem("token_refresh");
                      localStorage.removeItem("userid");
+                     localStorage.removeItem("isAdmin");
                     // localStorage.removeItem("role");
                      localStorage.removeItem("username");
                      this.$store.commit('removeToken')
                      this.$store.commit('removeUser')
+                     this.username=""
                      this.$router.push('/home')
+
               
               },
               goToCoursePublic(id){
@@ -176,6 +187,18 @@ export default {
                      this.$router.push(`en/learn/${id}`) 
 
               },
+
+              goToProfile(){
+                     this.$router.push(`/account/me/${this.$store.state.user.id}`) 
+              },
+
+              goToLeaderBoard(){
+                     this.$router.push(`/leader-board/me/${this.$store.state.user.id}`) 
+              },
+
+              handleCommand(){
+                     console.log("hando")
+              }
        }
 }
 </script>

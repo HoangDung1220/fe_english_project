@@ -18,56 +18,7 @@
             </el-col>
             <el-col :span="3"></el-col>
         </el-row>
-        <el-row v-if="type==0">
-            <el-col :span="3"></el-col>
-            <el-col :span="18">
-                <el-row class="title-vocabulary">
-                    WORD                
-                </el-row>
-                <el-row class="content-word">
-                    <el-col :span="18"> {{ vocabulary.vocabulary }}</el-col>
-                    <el-col :span="6">
-                        <el-button id="button-next" @click="next()">NEXT</el-button>
-                    </el-col>
-                </el-row>
-
-                <el-row class="title-vocabulary">
-                    Image
-                </el-row>
-                <el-row class="image-2">
-                    <img class="image-course" v-bind:src="vocabulary.image" >
-                </el-row>
-
-                <el-row class="title-vocabulary">
-                    Mean
-                </el-row>
-                <el-row class="text-1">
-                    {{ vocabulary.mean }}
-                </el-row>
-
-                <el-row class="title-vocabulary">
-                    Example
-                </el-row>
-                <el-row class="text-1">
-                    {{ vocabulary.sample }}
-                </el-row>
-
-                <el-row class="title-vocabulary">
-                    Description
-                </el-row>
-                <el-row class="text-1">
-                    {{ vocabulary.description }}                
-                </el-row>
-
-                <el-row class="title-vocabulary">
-                    Audio
-                </el-row>
-                <el-row class="text" @click="playAudio()">
-                    <img src="../../assets/img/audio.png" style="height: 100px; width: 100px;"/>
-                </el-row>
-            </el-col>
-            <el-col :span="3"></el-col>
-        </el-row>
+       
         <el-row v-if="type==1">
             <el-col :span="3"></el-col>
             <el-col :span="18">
@@ -135,6 +86,7 @@
             <el-col :span="1"> 
             </el-col>
         </el-row >
+
         <el-row v-if="type==2">
             <el-col :span="3"></el-col>
             <el-col :span="18">
@@ -298,6 +250,7 @@
                 <el-col :span="3"></el-col>
 
         </el-row>
+
         </div>
     
 </template>
@@ -317,7 +270,7 @@ export default{
             number_game_learned : 0,
             score:0,
             index : 0,
-            type : "0",
+            type : "1",
             vocabularies : [],
             vocabulary : "",
             means : [],
@@ -373,7 +326,7 @@ export default{
         const id_user = this.$store.state.user.id
 
         await axios
-                    .get(`http://127.0.0.1:8000/api/v1/course/learn?level=${this.id_level}&user=${id_user}&course=${this.id_course}`)
+                    .get(`http://127.0.0.1:8000/api/v1/course/review?level=${this.id_level}&user=${id_user}`)
                     .then((response) => {
                         this.vocabularies = response.data.data
                         this.vocabulary = this.vocabularies[this.current_vocabulary]
@@ -385,22 +338,17 @@ export default{
                     .get(`http://127.0.0.1:8000/api/v1/course/vocabulary/${this.id_course}`)
                     .then((response) => {
                         this.means = response.data
-                        console.log(this.means)
-                        console.log(this.means.length)
+                        console.log(response.data)
                     })
                     .catch((error) => console.log(error));
-
+        this.createAnswerForType1()
 
         this.$store.commit('setIsLoading',false)
 
     },
     methods:{
-        next(){
-                console.log(this.type_error)
-                this.clearValueButton1()
-                this.value = ""
-                this.alphabet_predict = []
-                if (this.type_error=="1"){
+        createAnswerForType1(){
+               
                     this.clearValueButton()
                     var index_answer = Math.floor((Math.random() * 4) + 1);
                     switch(index_answer) {
@@ -417,17 +365,14 @@ export default{
                             this.answer_type_1.D = this.vocabulary.vocabulary
                             break;
                         }
-
                     var randoms = []
                     var amount = 0;
                     while (randoms.length<4){
                         var i = Math.floor((Math.random() * this.means.length));
-                        console.log(i)
                         if (i<this.means.length && randoms.indexOf(i)==-1 && this.means[i].vocabulary!=this.vocabulary.vocabulary){
                             randoms.push(i);
                             amount = amount +1;
                         }
-                        console.log(randoms)
                     }
 
                     for (var j = 0 ; j<4 ; j++){                    
@@ -448,17 +393,13 @@ export default{
                             }
                         }
                     }
-                    console.log(this.answer_type_1)
                         
-                } else if (this.type_error=="2"){
-                    this.clearValueButton1()
-                    this.createAnswerForType2();
-                }
-                    this.type = this.type_error
-                    console.log("ahii")
-            },
+           
+        },
 
         createAnswerForType2(){
+            this.clearValueButton1()
+
             var index_answer = Math.floor((Math.random() * 4) + 1);
                 switch(index_answer) {
                     case 1:
@@ -533,11 +474,37 @@ export default{
               this.scale = (Math.round((this.number_game_learned/this.total_vocabulary_score + Number.EPSILON) * 100) / 100)*100
               this.score = this.score +5  
               this.playAudio();
-              this.createAnswerForType2();
-              setTimeout(()  =>
-              this.type = this.type + 1
+              setTimeout(()  =>{
+                    if (this.current_vocabulary == this.vocabularies.length-1){
+                        this.type =2
+                        this.current_vocabulary = 0
+                        this.vocabulary = this.vocabularies[this.current_vocabulary]
+                        this.createAnswerForType2()
+                    } else {
+                        this.current_vocabulary = this.current_vocabulary +1
+                        this.vocabulary = this.vocabularies[this.current_vocabulary]
+                        this.createAnswerForType1()
+                        console.log("hoang dung 1")
+
+                    }
+                }
               ,2000);
             } else {
+                switch(this.vocabulary.vocabulary){
+                    case this.answer_type_1.A:
+                        this.type_button.A = "success"
+                        break
+                    case this.answer_type_1.B:
+                        this.type_button.B = "success"
+                        break
+                    case this.answer_type_1.C:
+                        this.type_button.C = "success"
+                        break
+                    case this.answer_type_1.D:
+                        this.type_button.D = "success"
+                        break
+                }
+
                 switch (index){
                     case 1:
                         this.type_button.A = "danger"
@@ -551,6 +518,7 @@ export default{
                     case 4:
                         this.type_button.D = "danger"
                         break
+
                 }
                 toast({
                     message: "Answer wrong",
@@ -561,10 +529,21 @@ export default{
                     position: "top-right",
                 });
                 this.number_error = this.number_error +1
-                setTimeout(()  => {this.type = 0
-                this.type_error = 1},2000);
+                setTimeout(()  =>{
+                    if (this.current_vocabulary == this.vocabularies.length-1){
+                        this.type =2
+                        this.current_vocabulary = 0
+                        this.vocabulary = this.vocabularies[this.current_vocabulary]
+                        this.createAnswerForType2()
+                    } else {
+                        this.current_vocabulary = this.current_vocabulary +1
+                        this.vocabulary = this.vocabularies[this.current_vocabulary]
+                        this.createAnswerForType1()
+                    }
+                },1000)
             }
-
+            
+           
         },
 
         DontKnow2(){
@@ -594,7 +573,7 @@ export default{
         },
 
         async choiceAnswer2(value,index){
-            this.clearValueButton()
+            this.clearValueButton1()
             if (value==this.vocabulary.image){
                 switch (index){
                     case 1:
@@ -623,11 +602,36 @@ export default{
               this.number_game_learned = this.number_game_learned +1;
               this.scale = (Math.round((this.number_game_learned/this.total_vocabulary_score + Number.EPSILON) * 100) / 100)*100
               this.score = this.score +5  
-              this.createRandomAlphabet()
-              setTimeout(()  =>
-              this.type = this.type + 1
+              setTimeout(()  =>{
+                    if (this.current_vocabulary == this.vocabularies.length-1){
+                        this.type =3
+                        this.current_vocabulary = 0
+                        this.vocabulary = this.vocabularies[this.current_vocabulary]
+                        this.alphabet_predict=[]
+                        this.createRandomAlphabet()
+                    } else {
+                        this.current_vocabulary = this.current_vocabulary +1
+                        this.vocabulary = this.vocabularies[this.current_vocabulary]
+                        this.createAnswerForType2()
+                    }
+                }
               ,2000);
             } else {
+                switch(this.vocabulary.image){
+                    case this.answer_type_2.A:
+                        this.type_button_2.A = "success"
+                        break
+                    case this.answer_type_2.B:
+                        this.type_button_2.B = "success"
+                        break
+                    case this.answer_type_2.C:
+                        this.type_button_2.C = "success"
+                        break
+                    case this.answer_type_2.D:
+                        this.type_button_2.D = "success"
+                        break
+                }
+
                 switch (index){
                     case 1:
                         this.type_button_2.A = "danger"
@@ -651,9 +655,23 @@ export default{
                     position: "top-right",
                 });
                 this.number_error = this.number_error +1
-                setTimeout(()  => {this.type = 0
-                this.type_error = 2},2000);
+                setTimeout(()  =>{
+                    if (this.current_vocabulary == this.vocabularies.length-1){
+                        this.type =3
+                        this.current_vocabulary = 0
+                        this.vocabulary = this.vocabularies[this.current_vocabulary]
+                        this.alphabet_predict=[]
+                        this.createRandomAlphabet()
+                    } else {
+                        this.current_vocabulary = this.current_vocabulary +1
+                        this.vocabulary = this.vocabularies[this.current_vocabulary]
+                        this.createAnswerForType2()
+                    }
+                }
+              ,2000);
             }
+
+           
         },
         playAudio(){
             var audio = new Audio(this.vocabulary.audio)
@@ -768,9 +786,10 @@ export default{
                 if (this.vocabulary.id != this.vocabularies[this.vocabularies.length-1].id){
                 setTimeout(()  =>{
                     this.current_vocabulary = this.current_vocabulary +1
-                    this.type = 0
-                    this.type_error = 1
-                    this.vocabulary = this.vocabularies[this.current_vocabulary]   
+                    this.vocabulary = this.vocabularies[this.current_vocabulary] 
+                    this.alphabet_predict=[]  
+                    this.createRandomAlphabet()
+                    this.value=""
                 }
                 ,2000);
                 } 
@@ -782,7 +801,7 @@ export default{
         },
         clickOk(){
                     this.$store.commit('setIsLoading',true)
-                    this.$router.push(`/learning/exam/complete/${this.id_course}/${this.id_level}/${this.vocabulary.id}/${this.score}`)
+                    this.$router.push(`/learning/review/complete/${this.id_course}/${this.id_level}/${this.vocabulary.id}/${this.score}`)
                     this.$store.commit('setIsLoading',false)
             }
 

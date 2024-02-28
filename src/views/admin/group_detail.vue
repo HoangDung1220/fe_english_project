@@ -5,16 +5,20 @@
         <el-container style="background-color: #f9f8f8;">
           <el-main>
             <div class="main-container">
-                <el-row class="title">
-                    <el-col :span="17"><h1>Create a Course</h1></el-col>
-                </el-row>
-                <el-card style="width: 100%; margin-top: 20px;">
+                <div class="is-loading-bar has-text-centered" :class="{'is-loading': $store.state.isLoading}">
+                     <div class="lds-dual-ring"></div>
+       </div>
+         <el-row>
+            <el-col :span="3"></el-col>
+            <el-col :span="18">
+               
+                    <el-card style="width: 100%; margin-top: 20px;">
                         <el-row>
-                            <el-col :span="3"><img v-bind:src="group.image" style="height: 60px; width: 60px;"/></el-col>
+                            <el-col :span="3"><img src="../../assets/img/group_main.png" style="height: 60px; width: 60px;"/></el-col>
                             <el-col :span="21">
                                 <el-row>
-                                    <el-col :span="22"><div style="color:black">{{ group.name}}</div></el-col>
-                                    <el-col :span="2"><el-button type="info" plain @click="invitePeople()">Invite</el-button></el-col>
+                                    <el-col :span="22"><div style="color:black">{{ group_main.name }}</div></el-col>
+                                    <el-col :span="2"><el-button type="info" plain @click="invitePeople(group_main.id)">Invite</el-button></el-col>
                                     
                                 </el-row>
                                 <el-row style="margin-top: 15px;">
@@ -26,7 +30,7 @@
                                             <span>Course</span>
                                             </span>
                                         </template>
-                                        <el-row v-for="item1,index1 in courses" :key="index1">
+                                        <el-row v-for="(item1,index1) in group.courses" :key="index1">
                                             <el-col :span="2">
                                                 <div class="index">{{index1+1 }}.</div>
                                             </el-col>
@@ -34,13 +38,14 @@
                                             <div class="card-1">
                                                 <el-row>
                                                     <el-col :span="3">
-                                                        
+                                                        <div class="btn_holder" v-if="item1.course.user_created == user" @click="deleteCourse(item1.course.id, group_main.id)">
+                                                            <el-icon size="13"><CloseBold /></el-icon>
+                                                        </div>
+                                                        <img v-bind:alt="item1.course.title" v-bind:src="item1.course.image" style="height: 60px; width: 60px;"/>
                                                     </el-col>
                                                     <el-col :span="18" style="font-size: 16px;font-weight: bold;color: #333;">
                                                         {{ item1.course.title }}
-                                                        <el-progress :percentage="item1.percentage" />
                                                     </el-col>
-                                                    <el-col :span="3"><el-button type="success">Learn</el-button></el-col>
 
                                                 </el-row>
                                                
@@ -55,32 +60,179 @@
                                         <template #dropdown>
                                             <el-dropdown-menu>
                                                 <el-dropdown-item disabled>Course common</el-dropdown-item>
-                                                <el-dropdown-item v-for="value,key in public_course" :key="key" @click="handleClick(value.id, item.group.id)">{{ value.title }}</el-dropdown-item>
+                                                <el-dropdown-item v-for="value,key in group.public_course" :key="key" @click="handleClick(value.id, group_main.id)">{{ value.title }}</el-dropdown-item>
                                                 <el-dropdown-item disabled divided>Course personal</el-dropdown-item>
-                                                <el-dropdown-item v-for="value1,key1 in private_course" :key="key1" @click="handleClickPrivate(value1.id, item.group.id)">{{ value1.title }}</el-dropdown-item>
+                                                <el-dropdown-item v-for="value1,key1 in group.private_course" :key="key1" @click="handleClickPrivate(value1.id, group_main.id)">{{ value1.title }}</el-dropdown-item>
 
                                         </el-dropdown-menu>
                                         </template>
                                         </el-dropdown>
 
                                         <div style="font-size: 13px;">You can only add courses that you are learning to your group.</div>
-                                        <div style="font-size: 13px;">You can also <a>search for a course</a> and start learning it or <a>create your own</a>.
-</div>   
                                     </el-tab-pane>
                                         <el-tab-pane label="Members">
                                             <el-scrollbar>
-                                                <div class="scrollbar-flex-content">
-                                                                                                       
-                                            
+                                                <div class="scrollbar-flex-content" style="height: 300px;display: block;">
+                                                <div v-for="item3,index3 in group.members" :key="index3" >
+                                                    <div class="leader-board-row" >
+
+                                                                        <el-row>
+                                                                            <el-col :span="5">
+                                                                                <span class="row-username">{{ index3 +1 }}. </span>
+                                                                            </el-col>
+                                                                            <el-col :span="19">
+                                                                                <span > {{ item3.member.username }}</span>
+                                                                            </el-col>
+                                                                           
+                                                                        </el-row>
+                                                                        </div>
+                                                                
+                                                     </div>
                                                 </div>
                                             </el-scrollbar>
                                         </el-tab-pane>
                                         
-                                    </el-tabs>
+                                    </el-tabs> 
                                 </el-row>
                             </el-col>
                         </el-row>
-                    </el-card>
+                    </el-card>          
+            </el-col>
+           
+        </el-row> 
+
+        <el-dialog
+            v-model="confirmAddCourse"
+            width="30%"
+        >
+            <span>This is personnal course. You want to share people in group</span>
+            <template #footer>
+            <span class="dialog-footer">
+                <el-button @click="confirmAddCourse = false">Cancel</el-button>
+                <el-button type="primary" @click="addPrivateCourse()">
+                Confirm
+                </el-button>
+            </span>
+            </template>
+        </el-dialog>
+
+        <el-dialog
+            v-model="confirmDeleteCourse"
+            title="Delete Course"
+            width="30%"
+        >
+            <span>Do you want to remove coure </span>
+            <template #footer>
+            <span class="dialog-footer">
+                <el-button @click="confirmDeleteCourse = false">Cancel</el-button>
+                <el-button type="primary" @click="deleteCourse1()">
+                Confirm
+                </el-button>
+            </span>
+            </template>
+        </el-dialog>
+
+
+        <el-dialog
+            v-model="isInvite"
+            title="Invite people to join group"
+            width="50%"
+        >
+            <el-row>
+                <span class="ml-3 w-35 text-gray-600 inline-flex items-center" style="color:black; font-weight:500">Gmail/username</span>
+            </el-row>
+            <el-row style="margin-top:10px">
+            <el-col :span="3"></el-col>
+            <el-col :span="18">
+                <el-select v-model="value" filterable placeholder="Select" style="width:500px">
+                <el-option
+                v-for="item in options"
+                :key="item.id"
+                :label="item.username"
+                :value="item.id"
+                />
+            </el-select></el-col>
+            </el-row>
+
+            <el-row>
+                <span class="ml-3 w-35 text-gray-600 inline-flex items-center" style="margin-top:20px;color:black; font-weight:500">Suggest User for you: </span>
+            </el-row>
+            <div v-for="item, index in suggest_member" :key="index">
+            <el-row style="margin-top:10px" v-if="index%2==0">
+                <el-card class="box-card" style="width:320px;margin-left:20px" v-if="index<suggest_member.length">
+                    <div class="item">
+                                    <img class ="image_vocabulary" src="../../assets/img/avatar.png"/>
+                                    <p class="name" style="font-size: 14px;">{{ index+1 }}. {{ suggest_member[index].username }}</p>
+                                    <el-button type="primary" plain @click="inviteSuggest(suggest_member[index].id)">Invite</el-button>
+                    </div>
+                </el-card>
+                <el-card class="box-card" style="width:320px; margin-left:20px" v-if="index+1<suggest_member.length">
+                    <div class="item">
+                                    <img class ="image_vocabulary" src="../../assets/img/avatar.png"/>
+                                    <p class="name" style="font-size: 14px;">{{ index+2 }}. {{  suggest_member[index+1].username  }}</p>
+                                    <el-button type="primary" plain @click="inviteSuggest(suggest_member[index+1].id)">Invite</el-button>
+                    </div>
+                </el-card>
+            </el-row>
+            </div>
+            <template #footer>
+            <span class="dialog-footer">
+                <el-button @click="isInvite = false">Cancel</el-button>
+                <el-button type="success" @click="invite()">
+                Invite
+                </el-button>
+            </span>
+            </template>
+        </el-dialog>
+
+        <el-dialog v-model="visible" :show-close="false">
+            <template #header="{ close, titleId, titleClass }">
+            <div class="my-header">
+                <h4 :id="titleId" :class="titleClass">Create new group!</h4>
+                <el-button type="danger" @click="close">
+                <el-icon class="el-icon--left"><CircleCloseFilled /></el-icon>
+                Close
+                </el-button>
+            </div>
+
+            </template>
+            Create new group
+            <el-row>
+                    <el-col :span="5">Name</el-col>
+                    <el-col :span="15" >
+                        <el-input v-model="name_group" placeholder="Please input name group" style="justify-content: center; margin: 10px;"/>
+                    </el-col>
+            </el-row>
+
+            <el-row>
+                <el-col :span="5">Image</el-col>
+                <el-col :span="15">
+                    <input type="file" @change="onFileChange">
+                </el-col>
+
+            </el-row>
+
+            <el-row>
+                <el-col :span="5"></el-col>
+                <el-col :span="15">
+                    <el-radio-group v-model="status" class="ml-4">
+                        <el-radio label="public" size="large">Share everyone can use group</el-radio>
+                        <el-radio label="private" size="large">Share someone who indicated by admin-group</el-radio>
+                    </el-radio-group>
+                </el-col>
+
+            </el-row>
+
+            <el-row>
+                <el-col :span="20"></el-col>
+                <el-col :span="2"><el-button type="primary" @click="createGroup()">Create</el-button></el-col>
+                <el-col :span="2"></el-col>
+
+            </el-row>
+        </el-dialog>
+
+
+
               
             </div>
           </el-main>
@@ -92,46 +244,306 @@
   <script>
   import SideBar from "@/components/Sidebar.vue";
   import axios from "axios";
+  import { toast } from "bulma-toast";
 
 
   export default {
-    name: "Dashboard",
-  
-    data() {
-      return {
-       group:{},
-       courses:[],
-       public_course:[],
-       private_course:[]
-      };
-    },
+    name: "EditCourseAdmin",
     components: {
       SideBar,
     
     },
-    async mounted(){
-        this.$store.commit('setIsLoading',true)
-        var id = this.$route.params.group
-            await axios
-                .get(`http://127.0.0.1:8000/api/v1/admin/group/${id}`)
-                .then((response) => {
-                    this.group = response.data.group
-                    this.courses = response.data.courses
-                    this.public_course = response.data.public_course
-                    this.private_course = response.data.private_course
-                    console.log(this.group.name)
-
-                })
-                .catch((error) => console.log(error));
-            
-            this.$store.commit('setIsLoading',false)
-    },
-    methods:{
-        searchCourse(){
-            document.getElementById("search_course").style.borderBottom = "2px solid rgb(0, 0, 139)";
-            console.log("hi")
+    data(){
+        return{
+            file:{},
+            status:'public',
+            name_group:'',
+            visible : false,
+            group:{},
+            len_course:[],
+            members:[],
+            course:{
+                public:[],
+                private:[]
+            },
+            select_course: "",
+            imageUrl:"",
+            confirmAddCourse : false,
+            group_course_private :{
+                group:"",
+                course:""
+            },
+            user:"",
+            confirmDeleteCourse: false,
+            isInvite : false,
+            group_choice:"",
+            suggest_member:[],
+            value : "",
+            options:[],
+            other_group:[],
+            other_members:[],
+            id_group:0,
+            group_main:{}
         }
     },
+
+    async mounted(){
+        this.$store.state.admin_page = true
+        this.id_group = this.$route.params.group
+        console.log(this.id_group)
+
+        this.$store.commit('setIsLoading',true)
+        const id_user = this.$store.state.user.id
+        this.user = id_user
+
+        await axios
+            .get(`http://127.0.0.1:8000/api/v1/admin/group/detail/${this.id_group}`)
+            .then((response) => {
+                this.group = response.data
+                this.group_main = this.group.group
+            })
+            .catch((error) => console.log(error));
+            this.$store.commit('setIsLoading',false)
+
+     
+
+    },
+
+    methods:{
+        onFileChange(e) {
+            var files = e.target.files || e.dataTransfer.files;
+            this.file = files[0]
+        
+        },
+
+    async createGroup(){
+        const id_user = this.$store.state.user.id
+        const formData = new FormData()
+        var id_group = 0 
+        formData.append('name',this.name_group)
+        formData.append('status',this.status)
+        formData.append('create_by',id_user)
+        formData.append('image',this.file)
+
+        await axios
+            .post('http://127.0.0.1:8000/api/v1/group',formData)
+            .then((response) => {
+                id_group = response.data.id
+                console.log(response.data)
+
+            })
+            .catch((error) => console.log(error));
+
+        const data=
+            {
+                "user_invite_join": id_user,
+                "group": id_group,
+                "member": id_user
+            }
+        
+        await axios
+            .post('http://127.0.0.1:8000/api/v1/group/member',data)
+            .then((response) => {
+               this.visible = false
+            })
+            .catch((error) => console.log(error));
+
+    },
+
+    choiceValue(){
+        console.log(this.select_course)
+    },
+
+    createCourse(){
+        this.$router.push("/course/create")
+    },
+
+    async handleClick(id_course, id_group){
+        const id_user = this.$store.state.user.id
+        var result = true
+        const data = {
+            "member_add":id_user,
+            "group":id_group,
+            "course":id_course
+        }
+        console.log(data)
+        await axios
+            .post('http://127.0.0.1:8000/api/v1/group/course',data)
+            .then((response) => {
+               
+            })
+            .catch((error) => {
+                result = false
+                toast({
+                message: "Can't add course. Please check again",
+                type: "is-danger",
+                dismissible: true,
+                pauseOnHover: true,
+                duration: 2000,
+                position: "top-right",
+              })
+            })
+        if (result){
+            await axios
+                .get(`http://127.0.0.1:8000/api/v1/admin/group/detail/${this.id_group}`)
+                .then((response) => {
+                    this.group = response.data
+                })
+                .catch((error) => console.log(error));
+        }
+
+
+    },
+
+    handleClickPrivate(id_course, id_group){
+        this.confirmAddCourse = true
+        this.group_course_private.group = id_group
+        this.group_course_private.course = id_course
+    },
+
+    async addPrivateCourse(){
+        const id_user = this.$store.state.user.id
+        var result = true
+        const data = {
+            "member_add":id_user,
+            "group":this.group_course_private.group,
+            "course":this.group_course_private.course
+        }
+        await axios
+            .post('http://127.0.0.1:8000/api/v1/group/course',data)
+            .then((response) => {
+                console.log(response)
+            })
+            .catch((error) => {
+                result = false
+                toast({
+                message: "Can't add course. Please check again",
+                type: "is-danger",
+                dismissible: true,
+                pauseOnHover: true,
+                duration: 2000,
+                position: "top-right",
+              })
+            })
+        if (result){
+            await axios
+                .get(`http://127.0.0.1:8000/api/v1/admin/group/detail/${this.id_group}`)
+                .then((response) => {
+                    this.group = response.data
+                })
+                .catch((error) => console.log(error));
+        }
+        this.confirmAddCourse = false
+    },
+
+    deleteCourse(course_id, group_id){
+        this.confirmDeleteCourse = true
+        this.group_course_private.group = group_id
+        this.group_course_private.course = course_id
+    },
+
+    async deleteCourse1(){
+        var result = true
+        await axios
+            .delete(`http://127.0.0.1:8000/api/v1/group/course/remove?user=${this.user}&group=${this.group_course_private.group}&course=${this.group_course_private.course}`)
+            .then((response) => {
+                if (response.data.status==400)
+                {
+                    result = false
+                    console.log(result)
+                }
+            })
+            .catch((error) => {
+            })
+        if (result){
+            await axios
+                .get(`http://127.0.0.1:8000/api/v1/admin/group/detail/${this.id_group}`)
+                .then((response) => {
+                    this.group = response.data
+                })
+                .catch((error) => console.log(error));
+        }
+        this.confirmDeleteCourse = false
+    },
+
+    async invitePeople(){
+        this.isInvite=true
+        await axios
+                .get(`http://127.0.0.1:8000/api/v1/auth/suggest?user=${this.$store.state.user.id}&group=${this.group_main.id}`)
+                .then((response) => {
+                    this.suggest_member = response.data
+                })
+                .catch((error) => console.log(error));
+
+        await axios
+                .get(`http://127.0.0.1:8000/api/v1/auth/user/all?group=${this.group_main.id}`)
+                .then((response) => {
+                    this.options = response.data
+                })
+                .catch((error) => console.log(error));
+    },
+
+    invite(){
+        if (String(this.value).length>0){
+            const data = {
+                "group" : this.group_main.id,
+                "member" : this.value,
+                "user_invite_join": parseInt(this.user)
+            }
+            axios
+                .post(`http://127.0.0.1:8000/api/v1/group/member`,data)
+                .then((response) => {
+                    this.options = response.data
+                })
+                .catch((error) => {
+                    toast({
+                message: "Can't add member. Please try again",
+                type: "is-danger",
+                dismissible: true,
+                pauseOnHover: true,
+                duration: 2000,
+                position: "top-right",
+              })
+            })
+            this.isInvite=false
+        } else{
+            toast({
+                message: "Can't add member. Please choice user",
+                type: "is-danger",
+                dismissible: true,
+                pauseOnHover: true,
+                duration: 2000,
+                position: "top-right",
+              })
+        }
+        this.value = ""
+    },
+
+    inviteSuggest(id_user){
+        const data = {
+                "group" : this.group_main.id,
+                "member" : id_user,
+                "user_invite_join": parseInt(this.$store.state.user.id)
+            }
+            axios
+                .post(`http://127.0.0.1:8000/api/v1/group/member`,data)
+                .then((response) => {
+                    this.options = response.data
+                })
+                .catch((error) => {
+                    toast({
+                        message: "Can't add member. Please try again",
+                        type: "is-danger",
+                        dismissible: true,
+                        pauseOnHover: true,
+                        duration: 2000,
+                        position: "top-right",
+                    })
+            })
+            this.isInvite=false
+    },
+
+},
    
   };
   </script>

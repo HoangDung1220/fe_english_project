@@ -1,7 +1,7 @@
 <template>
 <div>
 <div id="hs_cos_wrapper_widget_1684515138519" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_module" style="" data-hs-cos-general-type="widget" data-hs-cos-type="module">
-<div class="hero__wrapper" style="background-color:#fcfaf2">
+<div class="hero__wrapper" style="background-color:#fcfaf2;   min-height:100vh;height: 100%;">
     <section class="hero_2021">
         <div class="background" style="">
 

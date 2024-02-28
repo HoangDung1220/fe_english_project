@@ -5,9 +5,7 @@
         <el-container style="background-color: #f9f8f8;">
           <el-main>
             <div class="main-container">
-                <el-row class="title">
-                    <el-col :span="17"><h1>Adding words in course</h1></el-col>
-                </el-row>
+               
                 <el-row style="margin-top: 20px;" v-for="it,i in levels_save" :key="i">
                    <el-col :span="1"></el-col>
                    <el-col :span="22">
@@ -31,11 +29,21 @@
                                 <el-col :span="4">Mean</el-col>
                                 <el-col :span="4">Description</el-col>
                                 <el-col :span="4">Example</el-col>
-                                <el-col :span="4">Image</el-col>
-                                <el-col :span="4">Audio</el-col>
+                                <el-col :span="3">Image</el-col>
+                                <el-col :span="3">Audio</el-col>
                             </el-row>
+                            <el-row :gutter="10" style="margin-top: 10px;" v-for="it2,id2 in vocabularys[i]" :key="id2">
+                                <el-col :span="4"><el-text>{{ it2.vocabulary }}</el-text></el-col>
+                                <el-col :span="4"><el-text>{{ it2.mean }}</el-text></el-col>
+                                <el-col :span="4"><el-text>{{ it2.description }}</el-text></el-col>
+                                <el-col :span="4"><el-text>{{ it2.sample }}</el-text></el-col>
+                                <el-col :span="3"><img v-bind:src="it2.image" style="height: 50px; width: 50px;"/></el-col>
+                                <el-col :span="3"><img src="../../assets/img/audio.png" style="height: 50px; width: 50px;"/></el-col>
+                                <el-col :span="2" @click="confirmDeleteBf(it2.id)"><el-icon style="cursor: pointer;"><CloseBold /></el-icon></el-col>
+                            </el-row> 
+                            <hr>
+                           
                             <div v-for="index in num_word[i]" :key="index">
-                              
                             <el-row :gutter="10" style="margin-top: 10px;">
                                 <el-col :span="4"><el-input v-model="words[index-1+default_record[i]]" @click="getIndex(index-1+default_record[i])"></el-input></el-col>
                                 <el-col :span="4"><el-input v-model="means[index-1+default_record[i]]" type="textarea"
@@ -62,6 +70,23 @@
           </el-main>
         </el-container>
       </el-container>
+
+      <el-dialog
+            v-model="confirmDelete"
+            title="Tips"
+            width="30%"
+            :before-close="handleClose"
+        >
+            <span>Are you sure delete vocabulary?</span>
+            <template #footer>
+            <span class="dialog-footer">
+                <el-button @click="confirmDelete = false">Cancel</el-button>
+                <el-button type="primary" @click="deleteVocabulary()">
+                Confirm
+                </el-button>
+            </span>
+            </template>
+        </el-dialog>
     </div>
   </template>
   
@@ -76,6 +101,8 @@
   
     data() {
       return {
+       id_vocabulary:0,
+       confirmDelete : false,
        default_record : [0],
        num_word :[1],
        num_level :1,
@@ -89,22 +116,49 @@
        current_id :0,
        tmp:"",
        levels_save :[
-        {
-          "id":0,
-          "indexing": 1,
-          "name": "Basic 1"
-        }
+        
        ],
        id_course : 0,
-       is_edit:[false]
+       is_edit:[],
+       vocabularys :[]
       };
     },
     components: {
       SideBar,
     
     },
-    mounted(){
+    async mounted(){
+      this.$store.state.admin_page = true
+
       this.id_course = this.$route.params.course
+      await axios
+                    .get(`http://127.0.0.1:8000/api/v1/course/level/${this.id_course}`)
+                    .then((response) => {
+
+                        for (var i=0;i<response.data.length;i++){
+                            var d = {
+                                "id" :response.data[i].id,
+                                "name":response.data[i].title,
+                                "indexing":response.data[i].indexing
+                            }
+                            this.levels_save.push(d)
+                            this.is_edit.push(false)
+                            if (i!=0){
+                                this.num_word.push(0)
+                            }
+                        }
+                    })
+                    .catch((error) => console.log(error));
+
+      await axios
+                    .get(`http://127.0.0.1:8000/api/v1/course/level/detail/${this.id_course}`)
+                    .then((response) => {
+                        for (var i=0; i<response.data.length;i++){
+                            var item = response.data[i].vocabularys
+                            this.vocabularys.push(item)
+                        }
+                    })
+                    .catch((error) => console.log(error));
     },
     methods:{
         clickEdit(index,it){
@@ -119,23 +173,54 @@
             console.log("hi")
         },
 
+        confirmDeleteBf(id){
+            this.id_vocabulary = id
+            this.confirmDelete = true
+        },
+
+        async deleteVocabulary(){
+            await axios
+                    .delete(`http://127.0.0.1:8000/api/v1/course/vocabulary/management/${this.id_vocabulary}`)
+                    .then((response) => {
+                        
+                    })
+                    .catch((error) => console.log(error));
+
+                    await axios
+                    .get(`http://127.0.0.1:8000/api/v1/course/level/detail/${this.id_course}`)
+                    .then((response) => {
+                        for (var i=0; i<response.data.length;i++){
+                            var item = response.data[i].vocabularys
+                            this.vocabularys.push(item)
+                        }
+                    })
+                    .catch((error) => console.log(error));
+            this.confirmDelete = false
+        },
+
         createNewWord(index_level){
-          if (this.audios[index_level]!=null && this.images[index_level]!=null || this.levels.indexOf(index_level)==-1){
-            if (this.num_word[index_level] < 20){
-                this.levels[this.num_word[index_level]+this.default_record[index_level]] = index_level
-                this.num_word[index_level]=this.num_word[index_level]+1
-            }
-          } else
-          {
-            const message = "You must upload image and audio to continue"
-            ElMessage.error(message)
-          }
+            if (this.num_word[index_level]>0){
+                if (this.audios[index_level]!=null && this.images[index_level]!=null){
+                    if (this.num_word[index_level] < 20){
+                        this.levels[this.num_word[index_level]+this.default_record[index_level]] = index_level
+                        this.num_word[index_level]=this.num_word[index_level]+1
+                    }
+                } else
+                {
+                    const message = "You must upload image and audio to continue"
+                    ElMessage.error(message)
+                }
+        } else {
+                    this.levels[this.num_word[index_level]+this.default_record[index_level]] = index_level
+                    this.num_word[index_level]=this.num_word[index_level]+1
+        }
         },
 
         addNewLevel(){
           this.num_word.push(0)
           const name_index = this.levels_save[this.levels_save.length-1].indexing +1
           const value = {
+            "id":0,
             "indexing": this.levels_save[this.levels_save.length-1].indexing +1 ,
             "name": "Basic" + name_index
           }
@@ -147,11 +232,13 @@
 
         async SaveData(){
           for (var index in this.levels_save){
+            if (this.levels_save[index].id==0){
             const data = {
                 "course" : this.id_course,
                 "title":this.levels_save[index].name,
                 "indexing":this.levels_save[index].indexing
             }
+        
             await axios
                     .post(`http://127.0.0.1:8000/api/v1/course/level/`,data)
                     .then((response) => {
@@ -159,7 +246,9 @@
                     })
                     .catch((error) => console.log(error));
           }
+        }
          
+        var status=false
           for (var index in this.words){
             if (this.words[index].length>0){
               const formData = new FormData();
@@ -176,11 +265,18 @@
             await axios
                     .post(`http://127.0.0.1:8000/api/v1/vocabulary/create`,formData)
                     .then((response) => {
+                      status=true
                       this.$router.push("/admin/course")
                     })
                     .catch((error) => console.log(error));
                   }
-          }
+                
+        }
+
+        if (!status){
+          this.$router.push("/admin/course")
+
+        }
         },
 
         onFileChange(e) {
@@ -200,19 +296,27 @@
         },
 
         changeLevelName(index,level){
-          this.levels_save[index].name = this.tmp
-          // const data = {
-          //   "title" : this.tmp
-          // }
-          // axios
-          //           .patch(`http://127.0.0.1:8000/api/v1/course/update-level/${level.id}`,data)
-          //           .then((response) => {
-          //             this.levels[index].name = this.tmp
-          //           })
-          //           .catch((error) => console.log(error));
-                    this.is_edit[index] = false
-                  },
+          if (this.levels_save[index].id!=0){
+                const data = {
+                    "title" : this.tmp
+                }
+                axios
+                    .patch(`http://127.0.0.1:8000/api/v1/course/update-level/${this.levels_save[index].id}`,data)
+                    .then((response) => {
+                      this.levels_save[index].name = this.tmp
+                      this.is_edit[index] = false
 
+                    })
+                    .catch((error) => console.log(error));
+                  }
+            else
+            {
+            this.is_edit[index] = false
+            this.levels_save[index].name = this.tmp
+            }
+
+            }
+                
         },
    
   };

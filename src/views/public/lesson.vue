@@ -124,6 +124,9 @@ export default {
         },
         learn(){
             this.$router.push(`/course/${this.id_course}`)
+        },
+        Back(){
+            this.$router.push(`/en/learn/1`)
         }
     }
 }

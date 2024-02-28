@@ -66,7 +66,8 @@ export default {
     data() {
        return{
             username:"",
-            password:""
+            password:"",
+            id:0,
        }},
     components : {
         Footer,
@@ -92,6 +93,8 @@ export default {
                     localStorage.setItem('token_refresh',response.data.tokens.refresh)
                     localStorage.setItem('username',response.data.username)
                     localStorage.setItem('userid',response.data.id)
+                    this.id = response.data.id
+                    this.$store.state.user.username = response.data.username
                     this.$router.push('/')
                 })
                 .catch((error) => {
@@ -100,7 +103,21 @@ export default {
                     this.username = ""
                     this.password = ""
                 })
-            
+            await axios
+                .get(`http://127.0.0.1:8000/api/v1/auth/me/${this.id}`)
+                .then((response) => {
+                        console.log(response.data)
+                        if (response.data.account.username=="QuangDuy"){
+                            console.log("admin nha")
+                            localStorage.setItem('isAdmin',"true")
+                            this.$store.commit('setAdmin')
+
+                        
+                    }
+                })
+                .catch((error) => {
+                
+                })
             this.$store.commit('setIsLoading',false)
         }
         },

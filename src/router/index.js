@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
 import Home from '../views/Home.vue'
 import DetailVocabulary from '../views/vocabulary/detailVocabulary.vue'
 import DetailVocabularyLevel from '../views/vocabulary/detailVocabularyLevel.vue'
@@ -37,6 +36,18 @@ import store from '../store'
 
 import CoursePublic from '../views/public/course.vue'
 import LessonPublic from '../views/public/lesson.vue'
+
+import CreateCourse from '../views/vocabulary/create_course.vue'
+import EditCourseAdmin from '../views/admin/editCourse.vue'
+import CreateCourseDetail from '../views/vocabulary/create_course_detail.vue'
+import EditCourse from '../views/vocabulary/editCourse'
+import ReviewCourse from '../views/vocabulary/review_word.vue'
+import CompleteReviewCourse from '../views/vocabulary/completeReviewExam'
+import AccountDetail from '../views/home/account_detail.vue'
+
+import AccountDetailMe from '../views/account/account_detail.vue'
+import LeaderBoard from '../views/account/leader_board.vue'
+
 
 const routes = [
   {
@@ -102,6 +113,14 @@ const routes = [
   },
 
   {
+    path: '/learning/review/complete/:id_course/:id_level/:id_vocabulary/:score',
+    name: 'review-detail-course',
+    component: CompleteReviewCourse,
+    meta: {
+      requireLogin: true
+    }
+  },
+  {
     path: '/course/:id_course/level/:id_level',
     name: 'detail-vocabulary-level',
     component: DetailVocabularyLevel,
@@ -114,6 +133,15 @@ const routes = [
     path: '/learning/exam/complete/:id_course/:id_level/:id_vocabulary/:score',
     name: 'completeExam',
     component: CompleteExam,
+    meta: {
+      requireLogin: true
+    }
+  },
+
+  {
+    path: '/review/:id_course/:id_level/:id_user',
+    name: 'review-vocabulary',
+    component: ReviewCourse,
     meta: {
       requireLogin: true
     }
@@ -208,15 +236,23 @@ const routes = [
   },
   {
     path: '/admin/course/create',
-    name: 'create-course',
+    name: 'create-course-admin',
     component: CreateCourseAdmin,
     meta: {
       requireLogin: true
     }
   },
   {
-    path: '/admin/course/create/detail',
-    name: 'create-course-detail',
+    path: '/admin/course/edit/:course',
+    name: 'edit-course-admin',
+    component: EditCourseAdmin,
+    meta: {
+      requireLogin: true
+    }
+  },
+  {
+    path: '/admin/course/create/detail/:course',
+    name: 'create-course-detail-admin',
     component: CreateCourseDetailAdmin,
     meta: {
       requireLogin: true
@@ -283,6 +319,60 @@ const routes = [
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
+  },
+
+  {
+    path: '/course/create',
+    name: 'create-course',
+    component: CreateCourse,
+    meta: {
+      requireLogin: true
+    }
+  },
+
+  {
+    path: '/course/create/detail/:course',
+    name: 'create-course-detail',
+    component: CreateCourseDetail,
+    meta: {
+      requireLogin: true
+    }
+  },
+
+  {
+    path: '/course/edit/:course',
+    name: 'edit-course',
+    component: EditCourse,
+    meta: {
+      requireLogin: true
+    }
+  },
+
+  {
+    path: '/account/:user',
+    name: 'account-detail',
+    component: AccountDetail,
+    meta: {
+      requireLogin: true
+    }
+  },
+
+  {
+    path: '/account/me/:user',
+    name: 'account-admin-detail-me',
+    component: AccountDetailMe,
+    meta: {
+      requireLogin: true
+    }
+  },
+
+  {
+    path: '/leader-board/me/:user',
+    name: 'leader-board-me',
+    component: LeaderBoard,
+    meta: {
+      requireLogin: true
+    }
   },
 
 ]
